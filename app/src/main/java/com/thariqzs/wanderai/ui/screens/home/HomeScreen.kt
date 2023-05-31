@@ -68,9 +68,8 @@ fun HomeScreenBody(navController: NavController) {
     ) {
 
         Header(name = "Rey", navController = navController)
-        Body()
+        Body(navController = navController)
         ListPlan()
-
     }
     Box(
         modifier = Modifier
@@ -122,7 +121,7 @@ fun Header(name: String, navController: NavController) {
 }
 
 @Composable
-fun Body() {
+fun Body(navController: NavController) {
     Column(
         modifier = Modifier.padding(all = 16.dp)
     ) {
@@ -132,7 +131,8 @@ fun Body() {
                     "Planning",
             "Travel-bot siap membantu untuk membuat rencana yang kamu mau!",
             image = R.drawable.ic_robot,
-            btnColor = BlueNormal
+            btnColor = BlueNormal,
+            handleNavigate = {navController.navigate(Routes.TravelPlan)}
         )
         Spacer(modifier = Modifier.height(16.dp))
         FeatureCard(
@@ -142,12 +142,13 @@ fun Body() {
             "Buat rencana perjalanan sesuai keinginanmu secara otomatis!",
             image = R.drawable.ic_phone,
             btnColor = OrangeNormal
+        , handleNavigate = {navController.navigate(Routes.TravelPlan)}
         )
     }
 }
 
 @Composable
-fun FeatureCard(icon: String, label: String, description: String, image: Int, btnColor: Color) {
+fun FeatureCard(icon: String, label: String, description: String, image: Int, btnColor: Color, handleNavigate: () -> Unit) {
     val blueLightWithOpacity = BlueLight.copy(alpha = 0.2f)
     val orangeLightWithOpacity = OrangeLight.copy(alpha = 0.2f)
 
@@ -199,6 +200,7 @@ fun FeatureCard(icon: String, label: String, description: String, image: Int, bt
                 modifier = Modifier
                     .size(28.dp)
                     .background(btnColor, RoundedCornerShape(8.dp))
+                    .clickable { handleNavigate() }
 
             ) {
                 Icon(
@@ -274,7 +276,7 @@ fun ListPlan() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 300)
+@Preview(showBackground = true, widthDp = 380)
 @Composable
 fun Preview() {
     HomeScreen(rememberNavController())
