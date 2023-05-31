@@ -88,3 +88,6 @@ val b1 = TextStyle(
 val b2 = TextStyle(
     fontFamily = dmSansRegular, fontWeight = FontWeight.Normal, fontSize = 16.sp
 )
+val a = TextStyle(
+    fontFamily = dmSansRegular, fontWeight = FontWeight.Normal, fontSize = 14.sp
+)

@@ -9,9 +9,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.ui.screens.auth.AuthScreen
+import com.thariqzs.wanderai.ui.screens.home.HomeScreen
 
 object Routes {
     const val Auth = "auth"
+    const val Home = "home"
 //    const val GameDetails = "game_details/{gameId}"
 //    const val NewGames = "new_games/{minReleaseTimestamp}/{subtitle}"
 //    const val UpcomingReleases = "upcoming_releases"
@@ -38,6 +40,10 @@ fun Navigation() {
     ) {
         composable(Routes.Auth) {
             AuthScreen(navController = navController)
+        }
+
+        composable(Routes.Home) {
+            HomeScreen(navController = navController)
         }
     }
 }

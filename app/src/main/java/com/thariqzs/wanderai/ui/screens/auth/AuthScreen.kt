@@ -29,9 +29,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.R
+import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueNormal
 import com.thariqzs.wanderai.ui.theme.BlueOld
 import com.thariqzs.wanderai.ui.theme.b2
@@ -40,12 +43,11 @@ import com.thariqzs.wanderai.ui.theme.h4
 
 @Composable
 fun AuthScreen(navController: NavController) {
-    AuthScreenBody()
+    AuthScreenBody(navController = navController)
 }
 
-@Preview(showBackground = true)
 @Composable
-fun AuthScreenBody() {
+fun AuthScreenBody(navController: NavController) {
     var email by remember {
         mutableStateOf("")
     }
@@ -104,14 +106,15 @@ fun AuthScreenBody() {
             BottomActionButton(
                 Modifier
                     .height(80.dp)
-                    .align(Alignment.BottomCenter)
+                    .align(Alignment.BottomCenter),
+                onClick = { navController.navigate(Routes.Home) }
             )
         }
     }
 }
 
 @Composable
-fun BottomActionButton(containerModifier: Modifier) {
+fun BottomActionButton(containerModifier: Modifier, onClick: () -> Unit) {
     Box(
         modifier = containerModifier
     ) {
@@ -134,7 +137,7 @@ fun BottomActionButton(containerModifier: Modifier) {
                 .fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BlueNormal),
-            onClick = { /* Button click logic */ }
+            onClick = onClick
         ) {
             Text("Masuk", style = h4)
         }
@@ -178,4 +181,10 @@ fun CustomTextInput(
             }
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun Preview() {
+    AuthScreen(rememberNavController())
 }
