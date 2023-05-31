@@ -17,3 +17,5 @@ val BlueOld = Color(0xFF2D42A9)
 val OrangeLight = Color(0xFFFFB86D)
 val OrangeNormal = Color(0xFFFFA03C)
 val OrangeOld = Color(0xFFE67600)
+
+val PlaceholderColor = Color(0XFF777676)

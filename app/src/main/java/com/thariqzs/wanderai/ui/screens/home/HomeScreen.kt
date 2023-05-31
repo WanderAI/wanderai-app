@@ -26,11 +26,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.R
@@ -55,12 +59,34 @@ fun HomeScreen(navController: NavController) {
 @Composable
 fun HomeScreenBody(navController: NavController) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .zIndex(1f)
+            .drawWithContent {
+                drawContent()
+            }
     ) {
 
         Header(name = "Rey", navController = navController)
         Body()
         ListPlan()
+
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+
+        Image(
+            painter = painterResource(id = R.drawable.ic_bottom_van),
+            contentDescription = "ic_bottom_van",
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier
+                .width(280.dp)
+                .align(Alignment.BottomEnd)
+                ,
+
+            )
     }
 }
 
@@ -192,7 +218,9 @@ fun FeatureCard(icon: String, label: String, description: String, image: Int, bt
 fun ListPlan() {
     val blueLightWithOpacity = BlueLight.copy(alpha = 0.2f)
 
-    Column(modifier = Modifier.padding(bottom = 16.dp)) {
+    Column(
+        modifier = Modifier.background(Color.Transparent)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -213,13 +241,14 @@ fun ListPlan() {
             }
         }
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-            horizontalArrangement =  Arrangement.spacedBy(8.dp),
-
-            ) {
+            modifier = Modifier.background(Color.Transparent),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             items(5) {
                 Box(
                     modifier = Modifier
+                        .background(Color.White, RoundedCornerShape(24.dp))
                         .border(
                             BorderStroke(1.dp, blueLightWithOpacity),
                             RoundedCornerShape(24.dp)
@@ -227,7 +256,6 @@ fun ListPlan() {
                         .padding(24.dp)
                 ) {
                     Column() {
-
                         Text("Bandung", style = sh2)
                         Spacer(modifier = Modifier.height(12.dp))
                         Row() {
@@ -246,7 +274,7 @@ fun ListPlan() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 300)
 @Composable
 fun Preview() {
     HomeScreen(rememberNavController())
