@@ -38,3 +38,7 @@ val Gray300 = Color(0XFFBFBFBF)
 val Gray400 = Color(0XFF9B9B9B)
 
 val UserBubbleBg = Color(0XFFF2F4F5)
+
+val PinkNormal = Color(0XFFFF5996)
+
+val BorderColor = Color(0XFFEEEDF0)

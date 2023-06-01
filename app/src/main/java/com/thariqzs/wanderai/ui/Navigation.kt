@@ -37,7 +37,7 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.TravelPlan,
+        startDestination = Routes.Home,
 //        modifier = Modifier.background(MaterialTheme.colors.background),
     ) {
         composable(Routes.Auth) {

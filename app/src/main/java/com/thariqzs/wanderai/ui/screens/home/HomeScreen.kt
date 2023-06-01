@@ -198,7 +198,7 @@ fun FeatureCard(icon: String, label: String, description: String, image: Int, bt
             Spacer(modifier = Modifier.weight(1f))
             Box(
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(36.dp)
                     .background(btnColor, RoundedCornerShape(8.dp))
                     .clickable { handleNavigate() }
 
@@ -209,7 +209,7 @@ fun FeatureCard(icon: String, label: String, description: String, image: Int, bt
                     tint = Color.White,
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .size(24.dp)
+                        .size(32.dp)
                 )
             }
         }
