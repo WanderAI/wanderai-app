@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.thariqzs.wanderai.ui.screens.travelplanning
 
+import android.util.Range
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,8 +47,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.util.toRange
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.maxkeppeker.sheets.core.models.base.Header
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueLight
@@ -63,6 +73,7 @@ import com.thariqzs.wanderai.ui.theme.a
 import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
+import java.time.LocalDate
 
 @Composable
 fun TravelPlanningScreen(navController: NavController) {
@@ -72,13 +83,18 @@ fun TravelPlanningScreen(navController: NavController) {
 @Composable
 fun TravelPlanningScreenBody(navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
+    var showDialog2 by remember { mutableStateOf(false) }
     var q by remember { mutableStateOf("") }
-
     Column(
         Modifier.fillMaxSize()
     ) {
-        Header(navController = navController)
-        ChatContainer(onOpenDialog = { showDialog = true })
+        ScreenHeader(navController = navController)
+        ChatContainer(onOpenDialog = {
+            when (it) {
+                1 -> showDialog = true
+                2 -> showDialog2 = true
+            }
+        })
     }
     BottomActionButton(onPressBtn1 = { /*TODO*/ }) {
     }
@@ -87,10 +103,15 @@ fun TravelPlanningScreenBody(navController: NavController) {
             showDialog = it
         })
     }
+    if (showDialog2) {
+        DatePickerDialog(setShowDialog = {
+            showDialog2 = it
+        })
+    }
 }
 
 @Composable
-fun Header(navController: NavController) {
+fun ScreenHeader(navController: NavController) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -144,14 +165,14 @@ fun Header(navController: NavController) {
 }
 
 @Composable
-fun ChatContainer(onOpenDialog: () -> Unit) {
+fun ChatContainer(onOpenDialog: (Int) -> Unit) {
     LazyColumn(
         Modifier
             .fillMaxWidth()
             .padding(bottom = 92.dp)
             .padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        items(2) {
+        items(1) {
             DateDetail(date = "Wednesday, 24 June 2021")
             BotBubble(
                 text = "Hello, I’m Travel-bot! \uD83D\uDC4B I’m your personal travel assistant!",
@@ -165,7 +186,14 @@ fun ChatContainer(onOpenDialog: () -> Unit) {
                 text = "Kamu mau liburan kemana?",
                 withAvatar = true
             )
-            UserActionBubble(text = "Pilih destinasi liburan", onPressAction = onOpenDialog)
+            UserActionBubble(text = "Pilih destinasi liburan", onPressAction = { onOpenDialog(1) })
+            BotBubble(
+                text = "Liburannya mau mulai dari kapan nih?",
+                withAvatar = true
+            )
+            UserActionBubble(
+                text = "Pilih tanggal mulai liburan",
+                onPressAction = { onOpenDialog(2) })
         }
     }
 }
@@ -490,6 +518,54 @@ fun CustomDialog(
             }
         }
     }
+}
+
+@Composable
+fun DatePickerDialog(setShowDialog: (Boolean) -> Unit) {
+    val timeBoundary = LocalDate.now().let { now -> now..now.plusYears(2) }
+    val selectedRange = remember {
+        val default =
+            LocalDate.now().let { time -> time.plusDays(0)..time.plusDays(1) }
+        mutableStateOf(default.toRange())
+    }
+    val dialogHeader = Header.Custom {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp, start = 20.dp, end = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Pilih destinasi Liburan", style = h4)
+            Icon(
+                painter = painterResource(id = R.drawable.ic_close),
+                contentDescription = "ic_close",
+                tint = PinkNormal,
+                modifier = Modifier
+                    .size(16.dp)
+                    .clickable { setShowDialog(false) }
+            )
+        }
+    }
+
+    CalendarDialog(
+        state = rememberUseCaseState(
+            visible = true,
+            true,
+            onCloseRequest = { setShowDialog(false) }),
+        config = CalendarConfig(
+            yearSelection = true,
+            monthSelection = true,
+            boundary = timeBoundary,
+            style = CalendarStyle.MONTH,
+        ),
+        selection = CalendarSelection.Period(
+            selectedRange = selectedRange.value
+        ) { startDate, endDate ->
+            selectedRange.value = Range(startDate, endDate)
+        },
+        header = dialogHeader
+    )
 }
 
 @Preview(showBackground = true, widthDp = 360)
