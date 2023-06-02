@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -68,8 +69,8 @@ fun HomeScreenBody(navController: NavController) {
     ) {
 
         Header(name = "Rey", navController = navController)
-        Body(navController = navController)
-        ListPlan()
+        Body(navController)
+        ListPlan(navController)
     }
     Box(
         modifier = Modifier
@@ -200,6 +201,7 @@ fun FeatureCard(icon: String, label: String, description: String, image: Int, bt
                 modifier = Modifier
                     .size(36.dp)
                     .background(btnColor, RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(8.dp))
                     .clickable { handleNavigate() }
 
             ) {
@@ -217,7 +219,7 @@ fun FeatureCard(icon: String, label: String, description: String, image: Int, bt
 }
 
 @Composable
-fun ListPlan() {
+fun ListPlan(navController: NavController) {
     val blueLightWithOpacity = BlueLight.copy(alpha = 0.2f)
 
     Column(
@@ -231,7 +233,7 @@ fun ListPlan() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("List Plan", style = h4)
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.clip(RoundedCornerShape(4.dp)).clickable { navController.navigate(Routes.ListPlan) },verticalAlignment = Alignment.CenterVertically) {
                 Text("Lihat Selengkapnya", style = a, color = BlueNormal)
                 Icon(
                     painter = painterResource(R.drawable.ic_chevron_right),
