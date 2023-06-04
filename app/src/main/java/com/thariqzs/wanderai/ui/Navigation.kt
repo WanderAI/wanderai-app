@@ -1,5 +1,6 @@
 package com.thariqzs.wanderai.ui
 
+import android.provider.ContactsContract.Profile
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +13,7 @@ import com.thariqzs.wanderai.ui.screens.auth.AuthScreen
 import com.thariqzs.wanderai.ui.screens.home.HomeScreen
 import com.thariqzs.wanderai.ui.screens.listplan.ListPlanScreen
 import com.thariqzs.wanderai.ui.screens.plandetail.PlanDetailScreen
+import com.thariqzs.wanderai.ui.screens.profile.ProfileScreen
 import com.thariqzs.wanderai.ui.screens.travelplanning.TravelPlanningScreen
 
 object Routes {
@@ -20,6 +22,7 @@ object Routes {
     const val TravelPlan = "travel_plan"
     const val ListPlan = "list_plan"
     const val PlanDetail = "plan_detail"
+    const val Profile = "profile"
 //    const val GameDetails = "game_details/{gameId}"
 //    const val NewGames = "new_games/{minReleaseTimestamp}/{subtitle}"
 //    const val UpcomingReleases = "upcoming_releases"
@@ -41,7 +44,7 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.PlanDetail,
+        startDestination = Routes.Profile,
 //        modifier = Modifier.background(MaterialTheme.colors.background),
     ) {
         composable(Routes.Auth) {
@@ -62,6 +65,10 @@ fun Navigation() {
 
         composable(Routes.PlanDetail) {
             PlanDetailScreen(navController = navController)
+        }
+
+        composable(Routes.Profile) {
+            ProfileScreen(navController = navController)
         }
     }
 }

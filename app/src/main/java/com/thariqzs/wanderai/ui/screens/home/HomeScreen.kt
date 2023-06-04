@@ -253,6 +253,8 @@ fun ListPlan(navController: NavController) {
                 Box(
                     modifier = Modifier
                         .background(Color.White, RoundedCornerShape(24.dp))
+                        .clip(RoundedCornerShape(24.dp))
+                        .clickable { navController.navigate(Routes.PlanDetail) }
                         .border(
                             BorderStroke(1.dp, blueLightWithOpacity),
                             RoundedCornerShape(24.dp)
