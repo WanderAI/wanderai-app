@@ -1,6 +1,5 @@
 package com.thariqzs.wanderai.ui
 
-import android.provider.ContactsContract.Profile
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +43,7 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.Profile,
+        startDestination = Routes.Home,
 //        modifier = Modifier.background(MaterialTheme.colors.background),
     ) {
         composable(Routes.Auth) {
