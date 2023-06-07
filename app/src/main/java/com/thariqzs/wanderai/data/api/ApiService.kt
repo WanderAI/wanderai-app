@@ -14,17 +14,20 @@ data class LoginRequest(
     val password: String
 )
 
+data class RegisterRequest(
+    val email: String,
+    val password: String,
+    val name: String
+)
+
 interface ApiService {
     @POST("user/login")
     suspend fun loginUser(
         @Body request: LoginRequest,
     ): Response<DefaultResponse<User>>
 
-    @FormUrlEncoded
     @POST("user/register")
     suspend fun registerUser(
-        @Field("email") email: String,
-        @Field("password") password: String,
-        @Field("name") name: String,
+        @Body request: RegisterRequest,
     ): Response<DefaultResponse<User>>
 }

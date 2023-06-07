@@ -68,9 +68,10 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
     when (val response = loginRes) {
         is ApiResponse.Success -> {
             val data = response.data
-            tvm.saveToken(data.data.token.toString())
-            Log.d("asthoriq", "AuthScreen: loginRes222 ${data.data.token.toString()}")
-//            navController.navigate(Routes.Home)
+            if (tvm.token.value.isNullOrBlank()) {
+                navController.navigate(Routes.Home)
+                tvm.saveToken(data.data.token.toString())
+            }
         }
         is ApiResponse.Failure -> {
             val errorMessage = response.errorMessage
@@ -194,11 +195,11 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                             }
                         } else if (viewModel.currTab == "Sign Up") {
                             if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank() && viewModel.passConfErr.isBlank() && viewModel.nameErr.isBlank() && viewModel.email.isNotBlank() && viewModel.password.isNotBlank() && viewModel.name.isNotBlank() && viewModel.passwordConf.isNotBlank()) {
-//                                viewModel.register(object : CoroutinesErrorHandler {
-//                                    override fun onError(message: String) {
-//                                        Log.d("asthoriq register", "onError: $message")
-//                                    }
-//                                })
+                                viewModel.register(object : CoroutinesErrorHandler {
+                                    override fun onError(message: String) {
+                                        Log.d("asthoriq register", "onError: $message")
+                                    }
+                                })
                             }
                         }
                     },

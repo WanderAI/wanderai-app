@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import com.thariqzs.wanderai.data.api.LoginRequest
+import com.thariqzs.wanderai.data.api.RegisterRequest
 import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.DefaultResponse
 import com.thariqzs.wanderai.data.api.model.User
@@ -40,7 +41,8 @@ class AuthViewModel @Inject constructor(private val authRepository: AuthReposito
 
     fun register(coroutinesErrorHandler: CoroutinesErrorHandler) =
         baseRequest(_loginResponse, coroutinesErrorHandler) {
-            authRepository.register(email, password, name)
+            val payload = RegisterRequest(email, password, name)
+            authRepository.register(payload)
         }
 
     fun validateInputLogin() {
