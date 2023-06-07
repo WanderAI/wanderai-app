@@ -16,6 +16,7 @@ import com.thariqzs.wanderai.ui.screens.listplan.ListPlanScreen
 import com.thariqzs.wanderai.ui.screens.plandetail.PlanDetailScreen
 import com.thariqzs.wanderai.ui.screens.profile.ProfileScreen
 import com.thariqzs.wanderai.ui.screens.travelplanning.TravelPlanningScreen
+import com.thariqzs.wanderai.utils.TokenViewModel
 
 object Routes {
     const val Auth = "auth"
@@ -45,16 +46,18 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.Home,
+        startDestination = Routes.Auth,
 //        modifier = Modifier.background(MaterialTheme.colors.background),
     ) {
         composable(Routes.Auth) {
-            val viewModel = hiltViewModel<AuthViewModel>()
-            AuthScreen(navController, viewModel)
+            val authViewModel = hiltViewModel<AuthViewModel>()
+            val tokenViewModel = hiltViewModel<TokenViewModel>()
+            AuthScreen(navController, authViewModel, tokenViewModel)
         }
 
         composable(Routes.Home) {
-            HomeScreen(navController = navController)
+            val tokenViewModel = hiltViewModel<TokenViewModel>()
+            HomeScreen(navController = navController, tokenViewModel)
         }
 
         composable(Routes.TravelPlan) {

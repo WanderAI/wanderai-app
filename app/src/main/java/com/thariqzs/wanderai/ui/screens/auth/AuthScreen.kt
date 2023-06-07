@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -69,6 +70,7 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
             val data = response.data
             tvm.saveToken(data.data.token.toString())
             Log.d("asthoriq", "AuthScreen: loginRes222 ${data.data.token.toString()}")
+//            navController.navigate(Routes.Home)
         }
         is ApiResponse.Failure -> {
             val errorMessage = response.errorMessage
@@ -80,11 +82,15 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
 
         else -> {}
     }
-//    val store = TokenManager(context)
-//    val token = store.getToken().collectAsState(initial = null)
-//    if (token.value != null) {
-//        navController.navigate(Routes.Home)
-//    }
+
+    val store = TokenManager(context)
+    val token = store.getToken().collectAsState(initial = null)
+
+    LaunchedEffect(token) {
+        if (token.value != null) {
+            navController.navigate(Routes.Home)
+        }
+    }
 
     AuthScreenBody(navController, vm)
 }
