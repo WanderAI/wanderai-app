@@ -1,6 +1,6 @@
 package com.thariqzs.wanderai.utils
 
-import com.thariqzs.wanderai.data.api.ds.TokenManager
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator

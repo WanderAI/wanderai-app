@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.preferencesDataStore
 import com.thariqzs.wanderai.data.api.ApiService
-import com.thariqzs.wanderai.data.api.ds.TokenManager
+import com.thariqzs.wanderai.utils.TokenManager
 import com.thariqzs.wanderai.utils.AuthAuthenticator
 import com.thariqzs.wanderai.utils.AuthInterceptor
 import dagger.Module

@@ -56,7 +56,9 @@ import com.thariqzs.wanderai.ui.theme.h2
 import com.thariqzs.wanderai.ui.theme.h3
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {

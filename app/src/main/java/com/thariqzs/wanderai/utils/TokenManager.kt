@@ -1,4 +1,4 @@
-package com.thariqzs.wanderai.data.api.ds
+package com.thariqzs.wanderai.utils
 
 import android.content.Context
 import androidx.datastore.core.DataStore

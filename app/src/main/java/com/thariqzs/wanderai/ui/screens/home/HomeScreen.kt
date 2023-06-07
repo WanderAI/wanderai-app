@@ -1,5 +1,6 @@
 package com.thariqzs.wanderai.ui.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +33,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,9 +54,22 @@ import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h3
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
+import com.thariqzs.wanderai.utils.TokenManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    val context = LocalContext.current
+    val TAG = "hsthoriq"
+
+    val store = TokenManager(context)
+    val token = store.getToken().collectAsState(initial = null)
+//    Log.d(TAG, "HomeScreen: twrwar ${token.value}")
+    if (token.value == null) {
+        navController.navigate(Routes.Auth)
+    }
+
     HomeScreenBody(navController = navController)
 }
 
@@ -233,7 +249,10 @@ fun ListPlan(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("List Plan", style = h4)
-            Row(Modifier.clip(RoundedCornerShape(4.dp)).clickable { navController.navigate(Routes.ListPlan) },verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                Modifier
+                    .clip(RoundedCornerShape(4.dp))
+                    .clickable { navController.navigate(Routes.ListPlan) },verticalAlignment = Alignment.CenterVertically) {
                 Text("Lihat Selengkapnya", style = a, color = BlueNormal)
                 Icon(
                     painter = painterResource(R.drawable.ic_chevron_right),

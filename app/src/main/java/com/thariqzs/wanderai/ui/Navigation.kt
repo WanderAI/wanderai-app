@@ -5,10 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.ui.screens.auth.AuthScreen
+import com.thariqzs.wanderai.ui.screens.auth.AuthViewModel
 import com.thariqzs.wanderai.ui.screens.home.HomeScreen
 import com.thariqzs.wanderai.ui.screens.listplan.ListPlanScreen
 import com.thariqzs.wanderai.ui.screens.plandetail.PlanDetailScreen
@@ -47,7 +49,8 @@ fun Navigation() {
 //        modifier = Modifier.background(MaterialTheme.colors.background),
     ) {
         composable(Routes.Auth) {
-            AuthScreen(navController = navController)
+            val viewModel = hiltViewModel<AuthViewModel>()
+            AuthScreen(navController, viewModel)
         }
 
         composable(Routes.Home) {

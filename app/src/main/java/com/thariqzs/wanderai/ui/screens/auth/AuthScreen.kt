@@ -1,5 +1,6 @@
 package com.thariqzs.wanderai.ui.screens.auth
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.R
@@ -49,30 +51,16 @@ import com.thariqzs.wanderai.ui.theme.PlaceholderColor
 import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h2
 import com.thariqzs.wanderai.ui.theme.h4
+import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 
 @Composable
-fun AuthScreen(navController: NavController) {
-    AuthScreenBody(navController = navController)
+fun AuthScreen(navController: NavController, vm: AuthViewModel) {
+//    val vm: AuthViewModel = viewModel()
+    AuthScreenBody( navController, vm )
 }
 
 @Composable
-fun AuthScreenBody(navController: NavController) {
-    var email by remember {
-        mutableStateOf("")
-    }
-    var password by remember {
-        mutableStateOf("")
-    }
-    var passwordConf by remember {
-        mutableStateOf("")
-    }
-    var name by remember {
-        mutableStateOf("")
-    }
-    var currTab by remember {
-        mutableStateOf("Login")
-    }
-
+fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
 
@@ -94,7 +82,7 @@ fun AuthScreenBody(navController: NavController) {
                     .padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    currTab, style = h2, color = BlueOld, modifier = Modifier.padding(bottom = 6.dp)
+                    viewModel.currTab, style = h2, color = BlueOld, modifier = Modifier.padding(bottom = 6.dp)
                 )
                 Column(
                     modifier = Modifier
@@ -106,18 +94,18 @@ fun AuthScreenBody(navController: NavController) {
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
                         label = "E-Mail",
-                        value = email,
-                        onValueChange = { newVal -> email = newVal },
+                        value = viewModel.email,
+                        onValueChange = { newVal -> viewModel.email = newVal },
                         placeholderText = "Masukkan E-mail"
                     )
-                    if (currTab == "Sign Up") {
+                    if (viewModel.currTab == "Sign Up") {
                         CustomTextInput(
                             Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 8.dp),
                             label = "Nama",
-                            value = name,
-                            onValueChange = { newVal -> name = newVal },
+                            value = viewModel.name,
+                            onValueChange = { newVal -> viewModel.name = newVal },
                             placeholderText = "Masukkan Nama"
                         )
                         CustomTextInput(
@@ -125,8 +113,8 @@ fun AuthScreenBody(navController: NavController) {
                                 .fillMaxWidth()
                                 .padding(bottom = 8.dp),
                             label = "Konfirmasi Password",
-                            value = passwordConf,
-                            onValueChange = { newVal -> passwordConf = newVal },
+                            value = viewModel.passwordConf,
+                            onValueChange = { newVal -> viewModel.passwordConf = newVal },
                             placeholderText = "Masukkan Password",
                             isPassword = true
                         )
@@ -136,27 +124,39 @@ fun AuthScreenBody(navController: NavController) {
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
                         label = "Password",
-                        value = password,
-                        onValueChange = { newVal -> password = newVal },
+                        value = viewModel.password,
+                        onValueChange = { newVal -> viewModel.password = newVal },
                         placeholderText = "Masukkan Password",
                         isPassword = true
                     )
                 }
                 BottomActionButton(
                     Modifier.height(72.dp),
-                    onClick = { navController.navigate(Routes.Home) },
+                    onClick = {
+                              viewModel.login( object: CoroutinesErrorHandler {
+                                  override fun onError(message: String) {
+                                      Log.d("asthoriq", "onError: $message")
+//                                      loginTV.text = "Error! $message"
+                                  }
+                              })
+//                        navController.navigate(Routes.Home)
+                              },
                     clickSwitchTab = {
-                        currTab = when (currTab) {
+                        val newCurrTab = when (viewModel.currTab) {
                             "Login" -> "Sign Up"
                             "Sign Up" -> "Login"
                             else -> "Login"
                         }
-                        password = ""
-                        passwordConf = ""
-                        name = ""
+                        viewModel.currTab = newCurrTab
+                        viewModel.password = ""
+                        viewModel.passwordConf = ""
+                        viewModel.name = ""
+
+
                     },
-                    currTab = currTab
+                    currTab = viewModel.currTab,
                 )
+
             }
         }
     }
@@ -273,8 +273,8 @@ fun CustomTextInput(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun Preview() {
-    AuthScreen(rememberNavController())
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun Preview() {
+//    AuthScreen(rememberNavController())
+//}
