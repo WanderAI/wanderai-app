@@ -1,5 +1,6 @@
 package com.thariqzs.wanderai.utils
 
+import android.util.Log
 import com.google.gson.Gson
 import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.ErrorResponse
@@ -19,6 +20,7 @@ fun<T> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = f
         try {
             if (response.isSuccessful) {
                 response.body()?.let { data ->
+                    Log.d("successthoriq", "apiRequestFlow: $data")
                     emit(ApiResponse.Success(data))
                 }
             } else {

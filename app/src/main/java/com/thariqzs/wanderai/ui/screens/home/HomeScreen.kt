@@ -65,7 +65,6 @@ fun HomeScreen(navController: NavController) {
 
     val store = TokenManager(context)
     val token = store.getToken().collectAsState(initial = null)
-//    Log.d(TAG, "HomeScreen: twrwar ${token.value}")
     if (token.value == null) {
         navController.navigate(Routes.Auth)
     }

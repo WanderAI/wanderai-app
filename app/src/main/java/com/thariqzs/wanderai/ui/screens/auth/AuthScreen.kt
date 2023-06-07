@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,48 +23,81 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.R
+import com.thariqzs.wanderai.data.api.model.ApiResponse
+import com.thariqzs.wanderai.data.api.model.DefaultResponse
+import com.thariqzs.wanderai.data.api.model.User
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueNormal
 import com.thariqzs.wanderai.ui.theme.BlueOld
 import com.thariqzs.wanderai.ui.theme.PlaceholderColor
+import com.thariqzs.wanderai.ui.theme.RedNormal
+import com.thariqzs.wanderai.ui.theme.a
 import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h2
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
+import com.thariqzs.wanderai.utils.TokenManager
+import com.thariqzs.wanderai.utils.TokenViewModel
 
 @Composable
-fun AuthScreen(navController: NavController, vm: AuthViewModel) {
-//    val vm: AuthViewModel = viewModel()
-    AuthScreenBody( navController, vm )
+fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewModel) {
+    val context = LocalContext.current
+
+    val loginRes by vm.loginResponse.observeAsState()
+
+    when (val response = loginRes) {
+        is ApiResponse.Success -> {
+            val data = response.data
+            tvm.saveToken(data.data.token.toString())
+            Log.d("asthoriq", "AuthScreen: loginRes222 ${data.data.token.toString()}")
+        }
+        is ApiResponse.Failure -> {
+            val errorMessage = response.errorMessage
+            // Handle failure case if needed
+        }
+        is ApiResponse.Loading -> {
+            // Handle loading state if needed
+        }
+
+        else -> {}
+    }
+//    val store = TokenManager(context)
+//    val token = store.getToken().collectAsState(initial = null)
+//    if (token.value != null) {
+//        navController.navigate(Routes.Home)
+//    }
+
+    AuthScreenBody(navController, vm)
 }
 
 @Composable
 fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
+    if (viewModel.currTab == "Login") {
+        viewModel.validateInputLogin()
+    } else if (viewModel.currTab == "Sign Up") {
+        viewModel.validateInputRegister()
+    }
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
-
     ) {
         Image(
             painter = painterResource(id = R.drawable.auth_screen_banner),
@@ -82,7 +116,10 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                     .padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    viewModel.currTab, style = h2, color = BlueOld, modifier = Modifier.padding(bottom = 6.dp)
+                    viewModel.currTab,
+                    style = h2,
+                    color = BlueOld,
+                    modifier = Modifier.padding(bottom = 6.dp)
                 )
                 Column(
                     modifier = Modifier
@@ -92,11 +129,12 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                     CustomTextInput(
                         Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp),
+                            .padding(bottom = 4.dp),
                         label = "E-Mail",
                         value = viewModel.email,
                         onValueChange = { newVal -> viewModel.email = newVal },
-                        placeholderText = "Masukkan E-mail"
+                        placeholderText = "Masukkan E-mail",
+                        errMsg = viewModel.emailErr
                     )
                     if (viewModel.currTab == "Sign Up") {
                         CustomTextInput(
@@ -106,17 +144,8 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                             label = "Nama",
                             value = viewModel.name,
                             onValueChange = { newVal -> viewModel.name = newVal },
-                            placeholderText = "Masukkan Nama"
-                        )
-                        CustomTextInput(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 8.dp),
-                            label = "Konfirmasi Password",
-                            value = viewModel.passwordConf,
-                            onValueChange = { newVal -> viewModel.passwordConf = newVal },
-                            placeholderText = "Masukkan Password",
-                            isPassword = true
+                            placeholderText = "Masukkan Nama",
+                            errMsg = viewModel.nameErr
                         )
                     }
                     CustomTextInput(
@@ -127,20 +156,46 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                         value = viewModel.password,
                         onValueChange = { newVal -> viewModel.password = newVal },
                         placeholderText = "Masukkan Password",
-                        isPassword = true
+                        isPassword = true,
+                        errMsg = viewModel.passErr
                     )
+                    if (viewModel.currTab == "Sign Up") {
+                        CustomTextInput(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp),
+                            label = "Konfirmasi Password",
+                            value = viewModel.passwordConf,
+                            onValueChange = { newVal -> viewModel.passwordConf = newVal },
+                            placeholderText = "Masukkan Password",
+                            isPassword = true,
+                            errMsg = viewModel.passConfErr
+                        )
+                    }
                 }
                 BottomActionButton(
                     Modifier.height(72.dp),
                     onClick = {
-                              viewModel.login( object: CoroutinesErrorHandler {
-                                  override fun onError(message: String) {
-                                      Log.d("asthoriq", "onError: $message")
-//                                      loginTV.text = "Error! $message"
-                                  }
-                              })
-//                        navController.navigate(Routes.Home)
-                              },
+                        if (viewModel.currTab == "Login") {
+//                            if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank() && viewModel.email.isNotBlank() && viewModel.password.isNotBlank()) {
+                                if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank()) {
+
+                                    viewModel.login(object : CoroutinesErrorHandler {
+                                    override fun onError(message: String) {
+                                        Log.d("asthoriq login", "onError: $message")
+                                    }
+                                })
+                            }
+                        } else if (viewModel.currTab == "Sign Up") {
+                            if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank() && viewModel.passConfErr.isBlank() && viewModel.nameErr.isBlank() && viewModel.email.isNotBlank() && viewModel.password.isNotBlank() && viewModel.name.isNotBlank() && viewModel.passwordConf.isNotBlank()) {
+//                                viewModel.register(object : CoroutinesErrorHandler {
+//                                    override fun onError(message: String) {
+//                                        Log.d("asthoriq register", "onError: $message")
+//                                    }
+//                                })
+                            }
+                        }
+                    },
                     clickSwitchTab = {
                         val newCurrTab = when (viewModel.currTab) {
                             "Login" -> "Sign Up"
@@ -219,7 +274,8 @@ fun CustomTextInput(
     onValueChange: (String) -> Unit,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     placeholderText: String? = null,
-    isPassword: Boolean? = false
+    isPassword: Boolean? = false,
+    errMsg: String? = "",
 ) {
     var passwordVisible by remember {
         mutableStateOf(false)
@@ -236,7 +292,8 @@ fun CustomTextInput(
                 if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
             } else VisualTransformation.None,
             decorationBox = @Composable { innerTextField ->
-                TextFieldDefaults.TextFieldDecorationBox(value = value,
+                TextFieldDefaults.TextFieldDecorationBox(
+                    value = value,
                     innerTextField = innerTextField,
                     enabled = enabled,
                     singleLine = singleLine,
@@ -244,7 +301,8 @@ fun CustomTextInput(
                     colors = TextFieldDefaults.textFieldColors(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
+                        disabledIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = RedNormal,
                     ),
                     visualTransformation = if (isPassword == true) {
                         if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
@@ -267,9 +325,16 @@ fun CustomTextInput(
                                         interactionSource = interactionSource, indication = null
                                     ) { passwordVisible = !passwordVisible })
                         }
-                    })
+                    },
+                    isError = !errMsg.isNullOrBlank(),
+                )
             },
         )
+        if (errMsg.isNullOrBlank()) {
+            Spacer(modifier = Modifier.padding(bottom = 4.dp))
+        } else {
+            Text(errMsg, style = a, color = RedNormal, modifier = Modifier.padding(bottom = 4.dp))
+        }
     }
 }
 
