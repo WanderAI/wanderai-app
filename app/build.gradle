@@ -102,4 +102,14 @@ dependencies {
 
     //livedata
     implementation("androidx.compose.runtime:runtime-livedata:1.4.3")
+
+    //cameraX
+    def cameraxVersion = "1.2.1"
+    implementation "androidx.camera:camera-lifecycle:$cameraxVersion"
+    implementation "androidx.camera:camera-video:$cameraxVersion"
+    implementation "androidx.camera:camera-view:$cameraxVersion"
+    implementation "androidx.camera:camera-extensions:$cameraxVersion"
+
+    //Coil
+    implementation "io.coil-kt:coil-compose:2.4.0"
 }

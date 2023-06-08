@@ -1,5 +1,12 @@
 package com.thariqzs.wanderai.ui.screens.home
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +30,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,7 +44,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
+import coil.annotation.ExperimentalCoilApi
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueLight
@@ -46,6 +60,8 @@ import com.thariqzs.wanderai.ui.theme.h3
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
 import com.thariqzs.wanderai.utils.TokenViewModel
+import com.thariqzs.wanderai.utils.createImageFile
+import java.util.Objects
 
 @Composable
 fun HomeScreen(navController: NavController, vm: TokenViewModel) {
@@ -121,8 +137,46 @@ fun Header(name: String, navController: NavController, vm: TokenViewModel) {
     }
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun Body(navController: NavController) {
+    val pickPictureLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { imageUri ->
+        if (imageUri != null) {
+            // Update the state with the Uri
+        }
+    }
+
+
+    val context = LocalContext.current
+    val file = context.createImageFile()
+    val uri = FileProvider.getUriForFile(
+        Objects.requireNonNull(context),
+        "com.thariqzs.wanderai" + ".provider", file
+    )
+
+    var capturedImageUri by remember {
+        mutableStateOf<Uri>(Uri.EMPTY)
+    }
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            capturedImageUri = uri
+            Log.d("hsthoriq", "Body: $uri")
+        }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+            cameraLauncher.launch(uri)
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Column(
         modifier = Modifier.padding(all = 16.dp)
     ) {
@@ -142,7 +196,19 @@ fun Body(navController: NavController) {
                     "Recognition",
             "Buat rencana perjalanan sesuai keinginanmu secara otomatis!",
             image = R.drawable.ic_phone,
-            btnColor = OrangeNormal, handleNavigate = { navController.navigate(Routes.TravelPlan) }
+            btnColor = OrangeNormal, handleNavigate = {
+//                navController.navigate(Routes.TravelPlan)
+//                pickPictureLauncher.launch("image/*")
+
+                    val permissionCheckResult =
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                        cameraLauncher.launch(uri)
+                    } else {
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+
+            }
         )
     }
 }
