@@ -1,6 +1,8 @@
 package com.thariqzs.wanderai
 
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -58,6 +60,7 @@ import com.thariqzs.wanderai.ui.theme.h3
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

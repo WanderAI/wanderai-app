@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.ui.screens.auth.AuthScreen
 import com.thariqzs.wanderai.ui.screens.auth.AuthViewModel
 import com.thariqzs.wanderai.ui.screens.home.HomeScreen
+import com.thariqzs.wanderai.ui.screens.home.HomeViewModel
 import com.thariqzs.wanderai.ui.screens.listplan.ListPlanScreen
 import com.thariqzs.wanderai.ui.screens.plandetail.PlanDetailScreen
 import com.thariqzs.wanderai.ui.screens.profile.ProfileScreen
@@ -57,7 +58,8 @@ fun Navigation() {
 
         composable(Routes.Home) {
             val tokenViewModel = hiltViewModel<TokenViewModel>()
-            HomeScreen(navController = navController, tokenViewModel)
+            val homeViewModel = hiltViewModel<HomeViewModel>()
+            HomeScreen(navController = navController, tokenViewModel, homeViewModel)
         }
 
         composable(Routes.TravelPlan) {

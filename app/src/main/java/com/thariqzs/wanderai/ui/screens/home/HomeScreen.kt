@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.ImageCapture
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -48,6 +49,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueLight
@@ -59,20 +61,23 @@ import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h3
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
+import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import com.thariqzs.wanderai.utils.TokenViewModel
 import com.thariqzs.wanderai.utils.createImageFile
+import java.io.File
+import java.io.InputStream
 import java.util.Objects
 
 @Composable
-fun HomeScreen(navController: NavController, vm: TokenViewModel) {
+fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewModel) {
     val context = LocalContext.current
     val TAG = "hsthoriq"
 
-    HomeScreenBody(navController = navController, vm)
+    HomeScreenBody(navController = navController, vm, hvm)
 }
 
 @Composable
-fun HomeScreenBody(navController: NavController, vm: TokenViewModel) {
+fun HomeScreenBody(navController: NavController, vm: TokenViewModel, hvm: HomeViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,7 +88,7 @@ fun HomeScreenBody(navController: NavController, vm: TokenViewModel) {
     ) {
 
         Header(name = "Rey", navController = navController, vm = vm)
-        Body(navController)
+        Body(navController, hvm)
         ListPlan(navController)
     }
     Box(
@@ -100,6 +105,15 @@ fun HomeScreenBody(navController: NavController, vm: TokenViewModel) {
                 .align(Alignment.BottomEnd),
 
             )
+
+        if (hvm.imageUri.path?.isNotEmpty() == true) {
+            Image(
+                modifier = Modifier
+                    .padding(16.dp, 8.dp),
+                painter = rememberImagePainter(hvm.imageUri),
+                contentDescription = null
+            )
+        }
     }
 }
 
@@ -139,7 +153,7 @@ fun Header(name: String, navController: NavController, vm: TokenViewModel) {
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun Body(navController: NavController) {
+fun Body(navController: NavController, hvm: HomeViewModel) {
     val pickPictureLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { imageUri ->
@@ -148,22 +162,22 @@ fun Body(navController: NavController) {
         }
     }
 
-
     val context = LocalContext.current
     val file = context.createImageFile()
     val uri = FileProvider.getUriForFile(
-        Objects.requireNonNull(context),
-        "com.thariqzs.wanderai" + ".provider", file
+        context,
+        "com.thariqzs.wanderai", file
     )
-
-    var capturedImageUri by remember {
-        mutableStateOf<Uri>(Uri.EMPTY)
-    }
 
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            capturedImageUri = uri
-            Log.d("hsthoriq", "Body: $uri")
+            hvm.imageUri = uri
+
+            hvm.sendImage(object : CoroutinesErrorHandler {
+                override fun onError(message: String) {
+                    Log.d("hsthoriq senimage", "onError: $message")
+                }
+            })
         }
 
     val permissionLauncher = rememberLauncherForActivityResult(
