@@ -11,21 +11,23 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private const val FILENAME_FORMAT = "dd-MMM-yyyy"
+private const val FILENAME_FORMAT = "yyyyMMdd_HHmmss"
 
 val timeStamp: String = SimpleDateFormat(
     FILENAME_FORMAT,
     Locale.US
 ).format(System.currentTimeMillis())
 
-fun Context.createImageFile(): File {
+fun createImageFile(context: Context): File {
     val TAG = "cifthoriq"
 
-    val imageDirectory = File(getExternalFilesDir(null), "my_images")
+    val imageDirectory = File(context.getExternalFilesDir(null), "my_images")
     imageDirectory.mkdirs()
+    Log.d(TAG, "imageDirectory: $imageDirectory")
 
     val imageFileName = "JPEG_$timeStamp.jpg"
     val image = File(imageDirectory, imageFileName)
 
+    Log.d(TAG, "image: $image")
     return image
 }

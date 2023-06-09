@@ -163,7 +163,7 @@ fun Body(navController: NavController, hvm: HomeViewModel) {
     }
 
     val context = LocalContext.current
-    val file = context.createImageFile()
+    val file = createImageFile(context)
     val uri = FileProvider.getUriForFile(
         context,
         "com.thariqzs.wanderai", file
@@ -172,6 +172,7 @@ fun Body(navController: NavController, hvm: HomeViewModel) {
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
             hvm.imageUri = uri
+            Log.d("hsthoriq", "imguri: $uri")
 
             hvm.sendImage(object : CoroutinesErrorHandler {
                 override fun onError(message: String) {

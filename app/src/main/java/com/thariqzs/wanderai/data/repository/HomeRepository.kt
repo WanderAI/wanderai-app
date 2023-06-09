@@ -14,8 +14,10 @@ import javax.inject.Inject;
 class HomeRepository @Inject constructor(
         private val apiService: ApiService,
 ) {
+    val TAG = "hsthoriq"
     fun sendImage(uri: Uri) = apiRequestFlow {
-        val file = File(uri.path)
+        val file = File("/storage/emulated/0/Android/data/com.thariqzs.wanderai/files" + uri.path)
+        Log.d(TAG, "sendImage: $file")
         file.let {
             val requestFile = RequestBody.create("image/*".toMediaTypeOrNull(), file)
             val imagePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
