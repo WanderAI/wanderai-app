@@ -21,7 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.screens.auth.AuthViewModel
-import com.thariqzs.wanderai.ui.screens.auth.CustomTextInput
+import com.thariqzs.wanderai.ui.screens.shared.components.CustomTextInput
 import com.thariqzs.wanderai.ui.theme.BlueNormal
 import com.thariqzs.wanderai.ui.theme.h4
 

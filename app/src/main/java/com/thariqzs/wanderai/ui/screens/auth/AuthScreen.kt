@@ -45,6 +45,8 @@ import androidx.navigation.NavController
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.ui.Routes
+import com.thariqzs.wanderai.ui.screens.shared.components.CustomTextInput
+import com.thariqzs.wanderai.ui.screens.shared.components.CustomTextInputPassword
 import com.thariqzs.wanderai.ui.theme.BlueNormal
 import com.thariqzs.wanderai.ui.theme.BlueOld
 import com.thariqzs.wanderai.ui.theme.PlaceholderColor
@@ -56,7 +58,6 @@ import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import com.thariqzs.wanderai.utils.TokenManager
 import com.thariqzs.wanderai.utils.TokenViewModel
-import okhttp3.Route
 
 @Composable
 fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewModel) {
@@ -72,10 +73,12 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
                 tvm.saveToken(data.data.token.toString())
             }
         }
+
         is ApiResponse.Failure -> {
             val errorMessage = response.errorMessage
             // Handle failure case if needed
         }
+
         is ApiResponse.Loading -> {
             // Handle loading state if needed
         }
@@ -154,7 +157,7 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                             errMsg = viewModel.nameErr
                         )
                     }
-                    CustomTextInput(
+                    CustomTextInputPassword(
                         Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
@@ -164,11 +167,15 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                         placeholderText = "Masukkan Password",
                         isPassword = true,
                         errMsg = viewModel.passErr,
-                        rightLabel = (if (viewModel.currTab == "Login") {"Lupa Password?"} else {""}).toString(),
-                        onClickRightLabel = {navController.navigate(Routes.ResetPassword)}
+                        rightLabel = (if (viewModel.currTab == "Login") {
+                            "Lupa Password?"
+                        } else {
+                            ""
+                        }).toString(),
+                        onClickRightLabel = { navController.navigate(Routes.ResetPassword) }
                     )
                     if (viewModel.currTab == "Sign Up") {
-                        CustomTextInput(
+                        CustomTextInputPassword(
                             Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 8.dp),
@@ -186,9 +193,9 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                     onClick = {
                         if (viewModel.currTab == "Login") {
 //                            if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank() && viewModel.email.isNotBlank() && viewModel.password.isNotBlank()) {
-                                if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank()) {
+                            if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank()) {
 
-                                    viewModel.login(object : CoroutinesErrorHandler {
+                                viewModel.login(object : CoroutinesErrorHandler {
                                     override fun onError(message: String) {
                                         Log.d("asthoriq login", "onError: $message")
                                     }
@@ -271,92 +278,6 @@ fun BottomActionButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomTextInput(
-    containerModifier: Modifier,
-    label: String,
-    value: String,
-    enabled: Boolean = true,
-    singleLine: Boolean = true,
-    onValueChange: (String) -> Unit,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    placeholderText: String? = null,
-    isPassword: Boolean? = false,
-    errMsg: String? = "",
-    rightLabel: String? = "",
-    onClickRightLabel: (() -> Unit?)? = null
-) {
-    var passwordVisible by remember {
-        mutableStateOf(false)
-    }
-    Column(modifier = containerModifier) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            Text(label, style = h4, modifier = Modifier.padding(bottom = 4.dp))
-            if (rightLabel != null) {
-                if (rightLabel.isNotBlank())
-                    Text(rightLabel, style = b2, color = RedNormal, modifier = Modifier.clickable {
-                        if (onClickRightLabel != null) {
-                            onClickRightLabel()
-                        }
-                    })
-            }
-        }
-        BasicTextField(
-            value = value, onValueChange = onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp),
-            textStyle = b2,
-            visualTransformation = if (isPassword == true) {
-                if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
-            } else VisualTransformation.None,
-            decorationBox = @Composable { innerTextField ->
-                TextFieldDefaults.TextFieldDecorationBox(
-                    value = value,
-                    innerTextField = innerTextField,
-                    enabled = enabled,
-                    singleLine = singleLine,
-                    interactionSource = interactionSource,
-                    colors = TextFieldDefaults.textFieldColors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        errorIndicatorColor = RedNormal,
-                    ),
-                    visualTransformation = if (isPassword == true) {
-                        if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
-                    } else VisualTransformation.None,
-                    shape = RoundedCornerShape(6.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp),
-                    placeholder = { Text(text = placeholderText ?: "", color = PlaceholderColor) },
-                    trailingIcon = {
-                        if (isPassword == true) {
-                            val interactionSource = remember { MutableInteractionSource() }
-                            val image = if (passwordVisible) R.drawable.ic_visibility_on
-                            else R.drawable.ic_visibility_off
-                            val description =
-                                if (passwordVisible) "Hide password" else "Show password"
-                            Icon(painter = painterResource(id = image),
-                                description,
-                                modifier = Modifier
-                                    .size(16.dp)
-                                    .clickable(
-                                        interactionSource = interactionSource, indication = null
-                                    ) { passwordVisible = !passwordVisible })
-                        }
-                    },
-                    isError = !errMsg.isNullOrBlank(),
-                )
-            },
-        )
-        if (errMsg.isNullOrBlank()) {
-            Spacer(modifier = Modifier.padding(bottom = 4.dp))
-        } else {
-            Text(errMsg, style = a, color = RedNormal, modifier = Modifier.padding(bottom = 4.dp))
-        }
-    }
-}
 
 //@Preview(showBackground = true)
 //@Composable

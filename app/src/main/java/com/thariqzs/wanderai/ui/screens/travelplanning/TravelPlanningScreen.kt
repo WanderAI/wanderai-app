@@ -58,6 +58,7 @@ import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.ui.Routes
+import com.thariqzs.wanderai.ui.screens.shared.components.CustomTextInput
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
 import com.thariqzs.wanderai.ui.theme.BlueSky
@@ -194,6 +195,7 @@ fun ChatContainer(onOpenDialog: (Int) -> Unit) {
             UserActionBubble(
                 text = "Pilih tanggal mulai liburan",
                 onPressAction = { onOpenDialog(2) })
+            UserActionBubble(text = "Beri deskripsi yang kamu inginkan", onPressAction = { onOpenDialog(1) })
         }
     }
 }
@@ -294,46 +296,48 @@ fun UserActionBubble(text: String, onPressAction: () -> Unit) {
 fun BottomActionButton(onPressBtn1: () -> Unit, onPressBtn2: () -> Unit) {
     Box(modifier = Modifier.fillMaxHeight()) {
         Column(Modifier.align(Alignment.BottomCenter)) {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .border(2.dp, Gray400)
-            )
-            Box(
-                Modifier
+            CustomTextInput(containerModifier = Modifier.background(BlueNormal).padding(vertical = 32.dp, horizontal = 16.dp), label = "test", value = "" , onValueChange = {}, noLabel = true)
 
-                    .padding(horizontal = 16.dp, vertical = 24.dp)
-            ) {
-                Row(Modifier.align(Alignment.BottomCenter)) {
-                    Button(
-                        modifier = Modifier
-                            .height(44.dp)
-                            .weight(1f),
-                        shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(2.dp, BlueNormal),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                        onClick = onPressBtn1
-                    ) {
-                        Text(
-                            text = "Save", style = h4, color = BlueNormal
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        modifier = Modifier
-                            .height(44.dp)
-                            .weight(1f),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = BlueNormal),
-                        onClick = onPressBtn1
-                    ) {
-                        Text(
-                            text = "Generate", style = h4
-                        )
-                    }
-                }
-            }
+//            Spacer(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(1.dp)
+//                    .border(2.dp, Gray400)
+//            )
+//            Box(
+//                Modifier
+//
+//                    .padding(horizontal = 16.dp, vertical = 24.dp)
+//            ) {
+//                Row(Modifier.align(Alignment.BottomCenter)) {
+//                    Button(
+//                        modifier = Modifier
+//                            .height(44.dp)
+//                            .weight(1f),
+//                        shape = RoundedCornerShape(16.dp),
+//                        border = BorderStroke(2.dp, BlueNormal),
+//                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+//                        onClick = onPressBtn1
+//                    ) {
+//                        Text(
+//                            text = "Save", style = h4, color = BlueNormal
+//                        )
+//                    }
+//                    Spacer(modifier = Modifier.width(8.dp))
+//                    Button(
+//                        modifier = Modifier
+//                            .height(44.dp)
+//                            .weight(1f),
+//                        shape = RoundedCornerShape(16.dp),
+//                        colors = ButtonDefaults.buttonColors(containerColor = BlueNormal),
+//                        onClick = onPressBtn1
+//                    ) {
+//                        Text(
+//                            text = "Generate", style = h4
+//                        )
+//                    }
+//                }
+//            }
         }
     }
 }
