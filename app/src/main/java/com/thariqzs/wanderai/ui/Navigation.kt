@@ -18,6 +18,7 @@ import com.thariqzs.wanderai.ui.screens.plandetail.PlanDetailScreen
 import com.thariqzs.wanderai.ui.screens.profile.ProfileScreen
 import com.thariqzs.wanderai.ui.screens.resetpassword.ResetPasswordScreen
 import com.thariqzs.wanderai.ui.screens.travelplanning.TravelPlanningScreen
+import com.thariqzs.wanderai.ui.screens.travelplanning.TravelPlanningViewModel
 import com.thariqzs.wanderai.utils.TokenViewModel
 
 object Routes {
@@ -65,7 +66,8 @@ fun Navigation() {
         }
 
         composable(Routes.TravelPlan) {
-            TravelPlanningScreen(navController = navController)
+            val travelPlanningViewModel = hiltViewModel<TravelPlanningViewModel>()
+            TravelPlanningScreen(navController = navController, travelPlanningViewModel)
         }
 
         composable(Routes.ListPlan) {

@@ -14,7 +14,7 @@ import javax.inject.Inject;
 class HomeRepository @Inject constructor(
         private val apiService: ApiService,
 ) {
-    val TAG = "hsthoriq"
+    val TAG = "hrthoriq"
     fun sendImage(uri: Uri) = apiRequestFlow {
         val file = File("/storage/emulated/0/Android/data/com.thariqzs.wanderai/files" + uri.path)
         Log.d(TAG, "sendImage: $file")

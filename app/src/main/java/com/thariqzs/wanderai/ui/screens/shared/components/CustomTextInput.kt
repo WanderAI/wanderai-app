@@ -1,8 +1,10 @@
 package com.thariqzs.wanderai.ui.screens.shared.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -30,6 +32,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.thariqzs.wanderai.R
+import com.thariqzs.wanderai.ui.theme.BlueNormal
+import com.thariqzs.wanderai.ui.theme.BlueOld
 import com.thariqzs.wanderai.ui.theme.PlaceholderColor
 import com.thariqzs.wanderai.ui.theme.RedNormal
 import com.thariqzs.wanderai.ui.theme.a
@@ -228,6 +232,111 @@ fun CustomTextInputPassword(
                     )
                 },
             )
+            if (errMsg.isNullOrBlank()) {
+                Spacer(modifier = Modifier.padding(bottom = 4.dp))
+            } else {
+                Text(
+                    errMsg,
+                    style = a,
+                    color = RedNormal,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomTextInputChat(
+    containerModifier: Modifier?,
+    label: String,
+    value: String,
+    enabled: Boolean = true,
+    singleLine: Boolean = true,
+    onValueChange: (String) -> Unit,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    placeholderText: String? = null,
+    isPassword: Boolean? = false,
+    errMsg: String? = "",
+    rightLabel: String? = "",
+    onClickRightLabel: (() -> Unit?)? = null,
+    noLabel: Boolean? = false,
+) {
+    var passwordVisible by remember {
+        mutableStateOf(false)
+    }
+    if (containerModifier != null) {
+        Column(modifier = containerModifier) {
+            if (noLabel == false) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(label, style = h4, modifier = Modifier.padding(bottom = 4.dp))
+                    if (rightLabel != null) {
+                        if (rightLabel.isNotBlank())
+                            Text(
+                                rightLabel,
+                                style = b2,
+                                color = RedNormal,
+                                modifier = Modifier.clickable {
+                                    if (onClickRightLabel != null) {
+                                        onClickRightLabel()
+                                    }
+                                })
+                    }
+                }
+            }
+            Row() {
+                BasicTextField(
+                    value = value, onValueChange = onValueChange,
+                    modifier = Modifier
+//                        .fillMaxWidth()
+                        .height(40.dp)
+                        .weight(1f),
+                    textStyle = b2,
+                    singleLine = singleLine,
+                    visualTransformation = if (isPassword == true) {
+                        if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
+                    } else VisualTransformation.None,
+                    decorationBox = @Composable { innerTextField ->
+                        TextFieldDefaults.TextFieldDecorationBox(
+                            value = value,
+                            innerTextField = innerTextField,
+                            enabled = enabled,
+                            singleLine = singleLine,
+                            interactionSource = interactionSource,
+                            colors = TextFieldDefaults.textFieldColors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                                errorIndicatorColor = RedNormal,
+                            ),
+                            visualTransformation = VisualTransformation.None,
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp),
+                            placeholder = {
+                                Text(
+                                    text = placeholderText ?: "",
+                                    color = PlaceholderColor
+                                )
+                            },
+                            isError = !errMsg.isNullOrBlank(),
+                        )
+                    },
+                )
+                Box(modifier = Modifier
+                    .padding(start = 16.dp)
+                    .size(40.dp)
+                    .background(BlueNormal, RoundedCornerShape(8.dp))) {
+                    Icon(painter = painterResource(id = R.drawable.ic_send_chat), contentDescription = "send chat", tint = Color.White, modifier = Modifier.align(
+                        Alignment.Center
+                    ))
+                }
+            }
+            
             if (errMsg.isNullOrBlank()) {
                 Spacer(modifier = Modifier.padding(bottom = 4.dp))
             } else {
