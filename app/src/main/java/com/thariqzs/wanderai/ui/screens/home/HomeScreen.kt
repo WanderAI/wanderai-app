@@ -135,8 +135,7 @@ fun Header(name: String, navController: NavController, vm: TokenViewModel) {
                 .size(28.dp)
                 .background(color = BlueNormal, shape = RoundedCornerShape(20.dp))
                 .clickable {
-                    vm.deleteToken()
-                    navController.navigate(Routes.Auth)
+                    navController.navigate(Routes.Profile)
                 },
         ) {
             Icon(

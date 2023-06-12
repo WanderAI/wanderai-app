@@ -16,6 +16,7 @@ import com.thariqzs.wanderai.ui.screens.home.HomeViewModel
 import com.thariqzs.wanderai.ui.screens.listplan.ListPlanScreen
 import com.thariqzs.wanderai.ui.screens.plandetail.PlanDetailScreen
 import com.thariqzs.wanderai.ui.screens.profile.ProfileScreen
+import com.thariqzs.wanderai.ui.screens.resetpassword.ResetPasswordScreen
 import com.thariqzs.wanderai.ui.screens.travelplanning.TravelPlanningScreen
 import com.thariqzs.wanderai.utils.TokenViewModel
 
@@ -26,6 +27,7 @@ object Routes {
     const val ListPlan = "list_plan"
     const val PlanDetail = "plan_detail"
     const val Profile = "profile"
+    const val ResetPassword = "reset_password"
 //    const val GameDetails = "game_details/{gameId}"
 //    const val NewGames = "new_games/{minReleaseTimestamp}/{subtitle}"
 //    const val UpcomingReleases = "upcoming_releases"
@@ -75,7 +77,13 @@ fun Navigation() {
         }
 
         composable(Routes.Profile) {
-            ProfileScreen(navController = navController)
+            val tokenViewModel = hiltViewModel<TokenViewModel>()
+            ProfileScreen(navController = navController, tokenViewModel)
+        }
+        
+        composable(Routes.ResetPassword) {
+            val authViewModel = hiltViewModel<AuthViewModel>()
+            ResetPasswordScreen(navController = navController, authViewModel)
         }
     }
 }

@@ -36,6 +36,8 @@ val RedOld = Color(0xFFB71800)
 val Gray200 = Color(0XFFF9F9F9)
 val Gray300 = Color(0XFFBFBFBF)
 val Gray400 = Color(0XFF9B9B9B)
+val Gray500 = Color(0XFFD9D9D9)
+val Gray600 = Color(0XFF535252)
 
 val UserBubbleBg = Color(0XFFF2F4F5)
 

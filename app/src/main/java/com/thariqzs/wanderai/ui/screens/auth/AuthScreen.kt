@@ -44,8 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.data.api.model.ApiResponse
-import com.thariqzs.wanderai.data.api.model.DefaultResponse
-import com.thariqzs.wanderai.data.api.model.User
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueNormal
 import com.thariqzs.wanderai.ui.theme.BlueOld
@@ -58,6 +56,7 @@ import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import com.thariqzs.wanderai.utils.TokenManager
 import com.thariqzs.wanderai.utils.TokenViewModel
+import okhttp3.Route
 
 @Composable
 fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewModel) {
@@ -164,7 +163,9 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                         onValueChange = { newVal -> viewModel.password = newVal },
                         placeholderText = "Masukkan Password",
                         isPassword = true,
-                        errMsg = viewModel.passErr
+                        errMsg = viewModel.passErr,
+                        rightLabel = (if (viewModel.currTab == "Login") {"Lupa Password?"} else {""}).toString(),
+                        onClickRightLabel = {navController.navigate(Routes.ResetPassword)}
                     )
                     if (viewModel.currTab == "Sign Up") {
                         CustomTextInput(
@@ -283,12 +284,24 @@ fun CustomTextInput(
     placeholderText: String? = null,
     isPassword: Boolean? = false,
     errMsg: String? = "",
+    rightLabel: String? = "",
+    onClickRightLabel: (() -> Unit?)? = null
 ) {
     var passwordVisible by remember {
         mutableStateOf(false)
     }
     Column(modifier = containerModifier) {
-        Text(label, style = h4, modifier = Modifier.padding(bottom = 4.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text(label, style = h4, modifier = Modifier.padding(bottom = 4.dp))
+            if (rightLabel != null) {
+                if (rightLabel.isNotBlank())
+                    Text(rightLabel, style = b2, color = RedNormal, modifier = Modifier.clickable {
+                        if (onClickRightLabel != null) {
+                            onClickRightLabel()
+                        }
+                    })
+            }
+        }
         BasicTextField(
             value = value, onValueChange = onValueChange,
             modifier = Modifier
