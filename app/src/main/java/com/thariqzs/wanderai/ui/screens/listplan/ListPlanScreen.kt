@@ -51,7 +51,7 @@ fun ListPlanScreenBody(navController: NavController) {
         ScreenHeader(navController)
         LazyColumn(Modifier.padding(horizontal = 36.dp)) {
             items(14) {
-                PlanCard(navController)
+                PlanCard(navigateTo = { navController.navigate(Routes.PlanDetail) })
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
@@ -78,7 +78,7 @@ fun ScreenHeader(navController: NavController) {
 }
 
 @Composable
-fun PlanCard(navController: NavController) {
+fun PlanCard(navigateTo: () -> Unit) {
     val blueLightWithOpacity = BlueLight.copy(alpha = 0.2f)
 
     Card(
@@ -107,7 +107,7 @@ fun PlanCard(navController: NavController) {
                     .size(36.dp)
                     .background(OrangeNormal, RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable { navController.navigate(Routes.PlanDetail) }
+                    .clickable { navigateTo() }
 
             ) {
                 Icon(

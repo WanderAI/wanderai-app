@@ -43,12 +43,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.util.toRange
 import androidx.navigation.NavController
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
@@ -60,6 +60,7 @@ import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.data.api.model.BudgetDetail
 import com.thariqzs.wanderai.data.api.model.CityDetail
 import com.thariqzs.wanderai.ui.Routes
+import com.thariqzs.wanderai.ui.screens.listplan.PlanCard
 import com.thariqzs.wanderai.ui.screens.shared.components.CustomTextInputChat
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
@@ -92,7 +93,13 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
         ScreenHeader(navController = navController)
         ChatContainer(tpvm)
     }
-    BottomActionButton(descText = tpvm.descriptionQ, onChangeText = {text -> tpvm.descriptionQ = text})
+    BottomActionButton(
+        descText = tpvm.descriptionQ,
+        onChangeText = { text -> tpvm.descriptionQ = text },
+        focusRequester = tpvm.focusRequester,
+        onSendChat = { tpvm.userResponse(8) },
+        enabled = tpvm.chatEnabled
+    )
 
     if (tpvm.showDialog) {
         CustomDialog(
@@ -113,7 +120,9 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
             tpvm.showDialog2 = it
         }, onSelectDate = {
             tpvm.userResponse(4)
-        }
+        },
+            selectedRange = tpvm.selectedRange,
+            setSelectedRange = { tpvm.selectedRange = it}
         )
     }
 
@@ -207,13 +216,11 @@ fun ChatContainer(tpvm: TravelPlanningViewModel) {
     val lifecycle = lifecycleOwner.lifecycle
 
     LaunchedEffect(lifecycle, tpvm.chatList.size) {
-        Log.d("line213thoriq", "ChatContainer: ${tpvm.chatList.lastIndex}")
         if (tpvm.chatList.isNotEmpty()) {
             val lastIndex = tpvm.chatList.lastIndex
             val scrollToBottom = listState.layoutInfo.visibleItemsInfo
                 .lastOrNull()?.index != lastIndex
 
-            Log.d("scrollToBottomthoriq", "scrollToBottom: ${scrollToBottom}")
             if (scrollToBottom) {
                 listState.scrollToItem(lastIndex)
             }
@@ -237,10 +244,16 @@ fun ChatContainer(tpvm: TravelPlanningViewModel) {
                 val text = chat.text
 
                 if (chat.isUser == false) {
-                    BotBubble(
-                        text = text,
-                        withAvatar = withAvatar
-                    )
+                    if (chat.result != null) {
+                        Box(Modifier.padding(start = 46.dp, bottom = 8.dp)) {
+                            PlanCard(navigateTo = {})
+                        }
+                    } else {
+                        BotBubble(
+                            text = text,
+                            withAvatar = withAvatar
+                        )
+                    }
                 } else {
                     if (chat.actionType!! > 0) {
                         UserActionBubble(
@@ -250,23 +263,6 @@ fun ChatContainer(tpvm: TravelPlanningViewModel) {
                         UserBubble(text = text)
                     }
                 }
-//                BotBubble(
-//                    text = "Kamu mau liburan kemana?",
-//                    withAvatar = true
-//                )
-//                UserActionBubble(
-//                    text = "Pilih destinasi liburan",
-//                    onPressAction = { onOpenDialog(1) })
-//                BotBubble(
-//                    text = "Liburannya mau mulai dari kapan nih?",
-//                    withAvatar = true
-//                )
-//                UserActionBubble(
-//                    text = "Pilih tanggal mulai liburan",
-//                    onPressAction = { onOpenDialog(2) })
-//                UserActionBubble(
-//                    text = "Beri deskripsi yang kamu inginkan",
-//                    onPressAction = { onOpenDialog(1) })
             }
         }
     }
@@ -366,7 +362,13 @@ fun UserActionBubble(text: String, onPressAction: () -> Unit) {
 }
 
 @Composable
-fun BottomActionButton(descText: String, onChangeText: (String) -> Unit) {
+fun BottomActionButton(
+    descText: String,
+    onChangeText: (String) -> Unit,
+    focusRequester: FocusRequester,
+    onSendChat: () -> Unit,
+    enabled: Boolean = false
+) {
     Box(modifier = Modifier.fillMaxHeight()) {
         Column(Modifier.align(Alignment.BottomCenter)) {
             Spacer(
@@ -385,7 +387,10 @@ fun BottomActionButton(descText: String, onChangeText: (String) -> Unit) {
                     label = "",
                     value = descText,
                     onValueChange = { text -> onChangeText(text) },
-                    noLabel = true
+                    noLabel = true,
+                    focusRequester = focusRequester,
+                    onSendChat = { onSendChat() },
+                    enabled = enabled,
                 )
             }
         }
@@ -546,14 +551,17 @@ fun CustomDialog(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePickerDialog(visible: Boolean, setShowDialog: (Boolean) -> Unit, onSelectDate: () -> Unit) {
+fun DatePickerDialog(
+    visible: Boolean,
+    setShowDialog: (Boolean) -> Unit,
+    onSelectDate: () -> Unit,
+    selectedRange: Range<LocalDate>,
+    setSelectedRange: (Range<LocalDate>) -> Unit
+) {
     val timeBoundary = LocalDate.now().let { now -> now..now.plusYears(2) }
-    val selectedRange = remember {
-        val default =
-            LocalDate.now().let { time -> time.plusDays(0)..time.plusDays(1) }
-        mutableStateOf(default.toRange())
-    }
+
     val dialogHeader = Header.Custom {
         Row(
             Modifier
@@ -595,9 +603,9 @@ fun DatePickerDialog(visible: Boolean, setShowDialog: (Boolean) -> Unit, onSelec
             style = CalendarStyle.MONTH,
         ),
         selection = CalendarSelection.Period(
-            selectedRange = selectedRange.value
+            selectedRange = selectedRange
         ) { startDate, endDate ->
-            selectedRange.value = Range(startDate, endDate)
+            setSelectedRange(Range(startDate, endDate))
         },
         header = dialogHeader
     )

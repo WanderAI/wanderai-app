@@ -26,6 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -33,7 +36,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.ui.theme.BlueNormal
-import com.thariqzs.wanderai.ui.theme.BlueOld
+import com.thariqzs.wanderai.ui.theme.Gray600
 import com.thariqzs.wanderai.ui.theme.PlaceholderColor
 import com.thariqzs.wanderai.ui.theme.RedNormal
 import com.thariqzs.wanderai.ui.theme.a
@@ -262,10 +265,16 @@ fun CustomTextInputChat(
     rightLabel: String? = "",
     onClickRightLabel: (() -> Unit?)? = null,
     noLabel: Boolean? = false,
+    focusRequester: FocusRequester = FocusRequester(),
+    onSendChat: () -> Unit
 ) {
-    var passwordVisible by remember {
-        mutableStateOf(false)
+
+    val backgroundColor = if (enabled) {
+        BlueNormal
+    } else {
+        Gray600
     }
+
     if (containerModifier != null) {
         Column(modifier = containerModifier) {
             if (noLabel == false) {
@@ -293,14 +302,13 @@ fun CustomTextInputChat(
                 BasicTextField(
                     value = value, onValueChange = onValueChange,
                     modifier = Modifier
-//                        .fillMaxWidth()
                         .height(40.dp)
-                        .weight(1f),
+                        .weight(1f)
+                        .focusRequester(focusRequester),
                     textStyle = b2,
+                    enabled = enabled,
                     singleLine = singleLine,
-                    visualTransformation = if (isPassword == true) {
-                        if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
-                    } else VisualTransformation.None,
+                    visualTransformation = VisualTransformation.None,
                     decorationBox = @Composable { innerTextField ->
                         TextFieldDefaults.TextFieldDecorationBox(
                             value = value,
@@ -330,13 +338,23 @@ fun CustomTextInputChat(
                 Box(modifier = Modifier
                     .padding(start = 16.dp)
                     .size(40.dp)
-                    .background(BlueNormal, RoundedCornerShape(8.dp))) {
-                    Icon(painter = painterResource(id = R.drawable.ic_send_chat), contentDescription = "send chat", tint = Color.White, modifier = Modifier.align(
-                        Alignment.Center
-                    ))
+                    .background(backgroundColor, RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable {
+                        onSendChat()
+                        focusRequester.freeFocus()
+                    }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_send_chat),
+                        contentDescription = "send chat",
+                        tint = Color.White,
+                        modifier = Modifier.align(
+                            Alignment.Center
+                        )
+                    )
                 }
             }
-            
+
             if (errMsg.isNullOrBlank()) {
                 Spacer(modifier = Modifier.padding(bottom = 4.dp))
             } else {
