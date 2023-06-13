@@ -75,7 +75,7 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
         BudgetDetail("> Rp10.000.000", 7),
     )
     var selectedBudget by mutableStateOf(listOf<Int>())
-    val chatDelay: Long = 100
+    val chatDelay: Long = 300
 
     private val initChatFlow: Flow<Chat> = flow {
         delay(chatDelay)

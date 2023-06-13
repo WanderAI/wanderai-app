@@ -57,7 +57,7 @@ class SingletonModule {
     @Provides
     fun provideRetrofitBuilder(): Retrofit.Builder =
         Retrofit.Builder()
-            .baseUrl("https://be-staging-nzyzq3cmra-et.a.run.app/")
+            .baseUrl("https://be-production-nzyzq3cmra-et.a.run.app/")
             .addConverterFactory(GsonConverterFactory.create())
 
     @Singleton

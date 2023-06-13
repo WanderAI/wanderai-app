@@ -4,10 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.ImageCapture
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,10 +29,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,7 +40,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
@@ -65,8 +58,6 @@ import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import com.thariqzs.wanderai.utils.TokenViewModel
 import com.thariqzs.wanderai.utils.createImageFile
 import java.io.File
-import java.io.InputStream
-import java.util.Objects
 
 @Composable
 fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewModel) {
@@ -153,43 +144,53 @@ fun Header(name: String, navController: NavController, vm: TokenViewModel) {
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun Body(navController: NavController, hvm: HomeViewModel) {
+        val context = LocalContext.current
+
     val pickPictureLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { imageUri ->
         if (imageUri != null) {
-            // Update the state with the Uri
+            val file = File(imageUri.path)
+            if (file != null) {
+                hvm.imageUri = Uri.fromFile(file)
+
+                hvm.sendImage(object : CoroutinesErrorHandler {
+                    override fun onError(message: String) {
+                        Log.d("hsthoriq senimage", "onError: $message")
+                    }
+                })
+            }
         }
     }
 
-    val context = LocalContext.current
-    val file = createImageFile(context)
-    val uri = FileProvider.getUriForFile(
-        context,
-        "com.thariqzs.wanderai", file
-    )
-
-    val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            hvm.imageUri = uri
-            Log.d("hsthoriq", "imguri: $uri")
-
-            hvm.sendImage(object : CoroutinesErrorHandler {
-                override fun onError(message: String) {
-                    Log.d("hsthoriq senimage", "onError: $message")
-                }
-            })
-        }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) {
-        if (it) {
-            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
-            cameraLauncher.launch(uri)
-        } else {
-            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
-        }
-    }
+//    val file = createImageFile(context)
+////    val uri = FileProvider.getUriForFile(
+////        context,
+////        "com.thariqzs.wanderai", file
+////    )
+////
+////    val cameraLauncher =
+////        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+////            hvm.imageUri = uri
+////            Log.d("hsthoriq", "imguri: $uri")
+////
+////            hvm.sendImage(object : CoroutinesErrorHandler {
+////                override fun onError(message: String) {
+////                    Log.d("hsthoriq senimage", "onError: $message")
+////                }
+////            })
+////        }
+//
+//    val permissionLauncher = rememberLauncherForActivityResult(
+//        ActivityResultContracts.RequestPermission()
+//    ) {
+//        if (it) {
+//            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+//            cameraLauncher.launch(uri)
+//        } else {
+//            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+//        }
+//    }
 
     Column(
         modifier = Modifier.padding(all = 16.dp)
@@ -212,15 +213,15 @@ fun Body(navController: NavController, hvm: HomeViewModel) {
             image = R.drawable.ic_phone,
             btnColor = OrangeNormal, handleNavigate = {
 //                navController.navigate(Routes.TravelPlan)
-//                pickPictureLauncher.launch("image/*")
+                pickPictureLauncher.launch("image/*")
 
-                    val permissionCheckResult =
-                        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                        cameraLauncher.launch(uri)
-                    } else {
-                        permissionLauncher.launch(Manifest.permission.CAMERA)
-                    }
+//                val permissionCheckResult =
+//                    ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+//                if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+//                    cameraLauncher.launch(uri)
+//                } else {
+//                    permissionLauncher.launch(Manifest.permission.CAMERA)
+//                }
 
             }
         )

@@ -34,7 +34,7 @@ interface ApiService {
     ): Response<DefaultResponse<User>>
 
     @Multipart
-    @POST("event/get-format")
+    @POST("event/predict-image")
     suspend fun sendImage(
         @Part image: MultipartBody.Part,
         @Part("FirstName") fname: RequestBody,
