@@ -21,12 +21,14 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(private val homeRepository: HomeRepository) :
     BaseViewModel() {
 
+    var showDialog by mutableStateOf(false)
     var imageUri by mutableStateOf(Uri.EMPTY)
 
     var _imageResponse = MutableLiveData<ApiResponse<DefaultResponse<ImageData>>>()
 
     fun sendImage(coroutinesErrorHandler: CoroutinesErrorHandler) =
         baseRequest(_imageResponse, coroutinesErrorHandler) {
+            Log.d("hvmthoriq", "imageUri: $imageUri")
             homeRepository.sendImage(imageUri)
         }
 }

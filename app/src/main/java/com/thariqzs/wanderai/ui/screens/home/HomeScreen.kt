@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -26,7 +27,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,8 +41,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
@@ -47,8 +52,10 @@ import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
+import com.thariqzs.wanderai.ui.theme.Gray200
 import com.thariqzs.wanderai.ui.theme.OrangeLight
 import com.thariqzs.wanderai.ui.theme.OrangeNormal
+import com.thariqzs.wanderai.ui.theme.PinkNormal
 import com.thariqzs.wanderai.ui.theme.a
 import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h3
@@ -64,7 +71,100 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
     val context = LocalContext.current
     val TAG = "hsthoriq"
 
+    val file = createImageFile(context)
+    val uri = FileProvider.getUriForFile(
+        context,
+        "com.thariqzs.wanderai", file
+    )
+
+    val pickPictureLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { imageUri ->
+        if (imageUri != null) {
+            val file = File(imageUri.path)
+            if (file != null) {
+                hvm.imageUri = Uri.fromFile(file)
+
+                hvm.sendImage(object : CoroutinesErrorHandler {
+                    override fun onError(message: String) {
+                        Log.d("hsthoriq senimage", "onError: $message")
+                    }
+                })
+            }
+        }
+    }
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            hvm.imageUri = uri
+
+            hvm.sendImage(object : CoroutinesErrorHandler {
+                override fun onError(message: String) {
+                    Log.d("hsthoriq senimage", "onError: $message")
+                }
+            })
+            Log.d(TAG, "HomeScreen: $uri")
+        }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+            cameraLauncher.launch(uri)
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     HomeScreenBody(navController = navController, vm, hvm)
+    if (hvm.showDialog) {
+        Dialog(onDismissRequest = { hvm.showDialog = false }) {
+            Surface(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 100.dp),
+                shape = RoundedCornerShape(16.dp),
+                color = Gray200,
+            ) {
+                Column(
+                    Modifier
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                    ) {
+                        Text(text = "Travel Recognition", style = h4, color = Color.Black)
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_close),
+                            contentDescription = "ic_close",
+                            tint = PinkNormal,
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clickable {
+                                    hvm.showDialog = false
+                                }
+                        )
+                    }
+                    TakeImageCard(R.drawable.ic_camera, "Camera") {
+                        val permissionCheckResult =
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                        if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                            cameraLauncher.launch(uri)
+                        } else {
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    TakeImageCard(R.drawable.ic_photo_library, "Gallery", {pickPictureLauncher.launch("image/*")})
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -144,54 +244,6 @@ fun Header(name: String, navController: NavController, vm: TokenViewModel) {
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun Body(navController: NavController, hvm: HomeViewModel) {
-        val context = LocalContext.current
-
-    val pickPictureLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { imageUri ->
-        if (imageUri != null) {
-            val file = File(imageUri.path)
-            if (file != null) {
-                hvm.imageUri = Uri.fromFile(file)
-
-                hvm.sendImage(object : CoroutinesErrorHandler {
-                    override fun onError(message: String) {
-                        Log.d("hsthoriq senimage", "onError: $message")
-                    }
-                })
-            }
-        }
-    }
-
-//    val file = createImageFile(context)
-////    val uri = FileProvider.getUriForFile(
-////        context,
-////        "com.thariqzs.wanderai", file
-////    )
-////
-////    val cameraLauncher =
-////        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-////            hvm.imageUri = uri
-////            Log.d("hsthoriq", "imguri: $uri")
-////
-////            hvm.sendImage(object : CoroutinesErrorHandler {
-////                override fun onError(message: String) {
-////                    Log.d("hsthoriq senimage", "onError: $message")
-////                }
-////            })
-////        }
-//
-//    val permissionLauncher = rememberLauncherForActivityResult(
-//        ActivityResultContracts.RequestPermission()
-//    ) {
-//        if (it) {
-//            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
-//            cameraLauncher.launch(uri)
-//        } else {
-//            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
-//        }
-//    }
-
     Column(
         modifier = Modifier.padding(all = 16.dp)
     ) {
@@ -212,16 +264,7 @@ fun Body(navController: NavController, hvm: HomeViewModel) {
             "Buat rencana perjalanan sesuai keinginanmu secara otomatis!",
             image = R.drawable.ic_phone,
             btnColor = OrangeNormal, handleNavigate = {
-//                navController.navigate(Routes.TravelPlan)
-                pickPictureLauncher.launch("image/*")
-
-//                val permissionCheckResult =
-//                    ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-//                if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-//                    cameraLauncher.launch(uri)
-//                } else {
-//                    permissionLauncher.launch(Manifest.permission.CAMERA)
-//                }
+hvm.showDialog = true
 
             }
         )
@@ -367,6 +410,49 @@ fun ListPlan(navController: NavController) {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun TakeImageCard(icon: Int, text: String, onPressButton: () -> Unit) {
+    val blueLightWithOpacity = BlueLight.copy(alpha = 0.2f)
+
+    Card(
+        Modifier
+            .border(1.dp, blueLightWithOpacity, RoundedCornerShape(24.dp))
+            .background(Color.White, RoundedCornerShape(24.dp))
+            .padding(24.dp)
+    ) {
+        Row(Modifier.background(Color.White), verticalAlignment = Alignment.CenterVertically) {
+            Column() {
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = "icon",
+                    modifier = Modifier.size(32.dp),
+                    tint = BlueNormal
+                )
+                Text("Recognition from", style = b2)
+                Text(text, style = sh2)
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(OrangeNormal, RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { onPressButton() }
+
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_chevron_right),
+                    contentDescription = "ic_chevron_right",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(32.dp)
+                )
             }
         }
     }

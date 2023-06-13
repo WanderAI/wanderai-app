@@ -34,7 +34,7 @@ class SingletonModule {
         authAuthenticator: AuthAuthenticator,
     ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.HEADERS
 
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
