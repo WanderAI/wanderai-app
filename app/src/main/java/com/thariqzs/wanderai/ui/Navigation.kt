@@ -29,7 +29,7 @@ object Routes {
     const val Home = "home"
     const val TravelPlan = "travel_plan"
     const val ListPlan = "list_plan"
-    const val PlanDetail = "plan_detail"
+    const val PlanDetail = "plan_detail/{doc_id}"
     const val Profile = "profile"
     const val ResetPassword = "reset_password"
     const val PlaceDetail = "place_detail"
@@ -78,8 +78,11 @@ fun Navigation() {
             ListPlanScreen(navController = navController)
         }
 
-        composable(Routes.PlanDetail) {
-            PlanDetailScreen(navController = navController)
+        composable(Routes.PlanDetail) { backStackEntry ->
+            val docId = backStackEntry.arguments?.getString("doc_id")
+            if (docId != null) {
+                PlanDetailScreen(navController = navController, docId = docId, homeViewModel)
+            }
         }
 
         composable(Routes.Profile) {

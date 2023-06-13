@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -57,6 +58,7 @@ import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.data.api.model.ApiResponse
+import com.thariqzs.wanderai.data.api.model.History
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
@@ -72,6 +74,7 @@ import com.thariqzs.wanderai.ui.theme.sh2
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import com.thariqzs.wanderai.utils.TokenViewModel
 import com.thariqzs.wanderai.utils.createImageFile
+import com.thariqzs.wanderai.utils.formatDateRange
 import java.io.File
 import java.io.FileOutputStream
 
@@ -82,6 +85,7 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
     val context = LocalContext.current
 
     val placeRes by hvm._placeResponse.observeAsState()
+    val historyRes by hvm._planHistoryResponse.observeAsState()
 
     when (val response = placeRes) {
         is ApiResponse.Success -> {
@@ -92,8 +96,8 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
                 hvm.place = data
 //                Log.d(TAG, "data: $navigationCompleted")
                 LaunchedEffect(Unit) {
-                    navController.navigate(Routes.PlaceDetail) // Navigate to PlaceDetail screen
-                    hvm.navigationCompleted = true // Set the flag to indicate navigation has occurred
+                    navController.navigate(Routes.PlaceDetail)
+                    hvm.navigationCompleted = true
                 }
             }
         }
@@ -102,13 +106,30 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
             val errorMessage = response.errorMessage
             Toast.makeText(context, "${errorMessage}", Toast.LENGTH_SHORT).show()
             Log.d(TAG, "failure: ${errorMessage}")
-            // Handle failure case if needed
         }
 
         is ApiResponse.Loading -> {
             Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
             Log.d(TAG, "loading... ")
-            // Handle loading state if needed
+        }
+
+        else -> {
+//            Log.d(TAG, "else: ${response}")
+        }
+    }
+
+    when (val response = historyRes) {
+        is ApiResponse.Success -> {
+            val data = response.data.data
+            if (data != null) {
+                hvm.history = data
+            }
+        }
+
+        is ApiResponse.Failure -> {
+            val errorMessage = response.errorMessage
+            Toast.makeText(context, "${errorMessage}", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "failure: ${errorMessage}")
         }
 
         else -> {
@@ -151,7 +172,7 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
                             Log.d("hsthoriq senimage", "onError: $message")
                         }
                     })
-//                    hvm.printUri()
+
                     hvm.showDialog = false
                 } else {
                     Log.d("hsthoriq senimage", "Gaada bang")
@@ -181,7 +202,7 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
                             Log.d("hsthoriq senimage", "onError: $message")
                         }
                     })
-//                    hvm.printUri()
+
                     hvm.showDialog = false
                 } else {
                     Log.d("hsthoriq senimage", "Gaada bang")
@@ -263,7 +284,9 @@ fun HomeScreenBody(navController: NavController, vm: TokenViewModel, hvm: HomeVi
 
         Header(name = "Rey", navController = navController, vm = vm)
         Body(navController, hvm)
-        ListPlan(navController)
+        if (hvm.history.size > 0) {
+            ListPlan(navController, hvm.history)
+        }
     }
     Box(
         modifier = Modifier
@@ -432,7 +455,7 @@ fun FeatureCard(
 }
 
 @Composable
-fun ListPlan(navController: NavController) {
+fun ListPlan(navController: NavController, list: List<History>) {
     val blueLightWithOpacity = BlueLight.copy(alpha = 0.2f)
 
     Column(
@@ -467,12 +490,18 @@ fun ListPlan(navController: NavController) {
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(5) {
+            items(list) {
+                val formattedDateRange = it.date_start?.let { it1 -> it.date_end?.let { it2 ->
+                    formatDateRange(it1,
+                        it2
+                    )
+                } }
+
                 Box(
                     modifier = Modifier
                         .background(Color.White, RoundedCornerShape(24.dp))
                         .clip(RoundedCornerShape(24.dp))
-                        .clickable { navController.navigate(Routes.PlanDetail) }
+                        .clickable { navController.navigate("plan_detail/${it.doc_id}") }
                         .border(
                             BorderStroke(1.dp, blueLightWithOpacity),
                             RoundedCornerShape(24.dp)
@@ -480,7 +509,7 @@ fun ListPlan(navController: NavController) {
                         .padding(24.dp)
                 ) {
                     Column() {
-                        Text("Bandung", style = sh2)
+                        Text(it.city?:"", style = sh2)
                         Spacer(modifier = Modifier.height(12.dp))
                         Row() {
                             Icon(
@@ -489,7 +518,7 @@ fun ListPlan(navController: NavController) {
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("24 Mei 2023", style = b2)
+                            Text(formattedDateRange?: "", style = b2)
                         }
                     }
                 }

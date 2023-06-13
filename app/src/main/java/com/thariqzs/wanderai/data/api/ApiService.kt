@@ -1,15 +1,20 @@
 package com.thariqzs.wanderai.data.api
 
 import com.thariqzs.wanderai.data.api.model.DefaultResponse
+import com.thariqzs.wanderai.data.api.model.History
+import com.thariqzs.wanderai.data.api.model.HistoryDetail
 import com.thariqzs.wanderai.data.api.model.Place
 import com.thariqzs.wanderai.data.api.model.User
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 data class LoginRequest(
     val email: String,
@@ -38,4 +43,10 @@ interface ApiService {
     suspend fun sendImage(
         @Part image: MultipartBody.Part,
     ): Response<DefaultResponse<Place>>
+
+    @GET("event/list-recommendation-history")
+    suspend fun getHistory(): Response<DefaultResponse<List<History>>>
+
+    @GET("event/recommendation-detail/{id}")
+    suspend fun getDetail(@Path("id") id: String): Response<DefaultResponse<HistoryDetail>>
 }

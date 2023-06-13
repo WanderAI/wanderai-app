@@ -23,4 +23,12 @@ class HomeRepository @Inject constructor(
 
         apiService.sendImage(imagePart)
     }
+
+    fun getHistoryList() = apiRequestFlow {
+        apiService.getHistory()
+    }
+
+    fun getHistoryDetail(id: String) = apiRequestFlow {
+        apiService.getDetail(id)
+    }
 }
