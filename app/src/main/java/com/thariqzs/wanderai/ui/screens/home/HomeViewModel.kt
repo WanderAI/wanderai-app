@@ -10,7 +10,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.DefaultResponse
-import com.thariqzs.wanderai.data.api.model.ImageData
+import com.thariqzs.wanderai.data.api.model.Place
+import com.thariqzs.wanderai.data.api.model.PlaceDetail
 import com.thariqzs.wanderai.data.repository.HomeRepository
 import com.thariqzs.wanderai.utils.BaseViewModel
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
@@ -28,7 +29,10 @@ val TAG = "hvmthoriq"
     var bitmap by mutableStateOf(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
     var testfile by mutableStateOf(File(""))
 
-    var _imageResponse = MutableLiveData<ApiResponse<DefaultResponse<ImageData>>>()
+    var _placeResponse = MutableLiveData<ApiResponse<DefaultResponse<Place>>>()
+
+    var place by mutableStateOf(Place())
+    var navigationCompleted by  mutableStateOf(false)
 
     fun printUri(){
         Log.d(TAG, "printUri: ${imageUri.path}")
@@ -36,8 +40,7 @@ val TAG = "hvmthoriq"
     }
 
     fun sendImage(coroutinesErrorHandler: CoroutinesErrorHandler) =
-        baseRequest(_imageResponse, coroutinesErrorHandler) {
-            Log.d("hvmthoriq", "imageUri: $imageUri")
+        baseRequest(_placeResponse, coroutinesErrorHandler) {
             homeRepository.sendImage(testfile)
         }
 }

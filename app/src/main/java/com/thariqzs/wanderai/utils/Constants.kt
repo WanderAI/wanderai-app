@@ -20,8 +20,9 @@ fun<T> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = f
         try {
             if (response.isSuccessful) {
                 response.body()?.let { data ->
-                    Log.d("successthoriq", "apiRequestFlow: $data")
+                    Log.d("successthoriq", "SUCCESS: $data")
                     emit(ApiResponse.Success(data))
+                    Log.d("successthoriq", "finished emitting data")
                 }
             } else {
                 response.errorBody()?.let { error ->

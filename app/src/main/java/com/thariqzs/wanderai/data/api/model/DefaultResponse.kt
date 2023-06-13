@@ -4,8 +4,9 @@ import com.google.gson.annotations.SerializedName
 
 data class DefaultResponse<T> (
     @field:SerializedName("data")
-    val data: T & Any,
+    val data: T? = null,
 
     @field:SerializedName("message")
-    val message: String,
+    val message: String? = null
+
 )

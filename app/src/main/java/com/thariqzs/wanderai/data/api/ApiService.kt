@@ -1,7 +1,7 @@
 package com.thariqzs.wanderai.data.api
 
 import com.thariqzs.wanderai.data.api.model.DefaultResponse
-import com.thariqzs.wanderai.data.api.model.ImageData
+import com.thariqzs.wanderai.data.api.model.Place
 import com.thariqzs.wanderai.data.api.model.User
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -37,7 +37,5 @@ interface ApiService {
     @POST("event/recommendation-by-image")
     suspend fun sendImage(
         @Part image: MultipartBody.Part,
-//        @Part("FirstName") fname: RequestBody,
-//        @Part("Id") id: RequestBody
-    ): Response<DefaultResponse<ImageData>>
+    ): Response<DefaultResponse<Place>>
 }

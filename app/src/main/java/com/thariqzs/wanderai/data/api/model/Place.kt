@@ -2,18 +2,7 @@ package com.thariqzs.wanderai.data.api.model
 
 import com.google.gson.annotations.SerializedName
 
-data class ImageData(
-    @field:SerializedName("confidence_percent")
-    val confidence_percent: Float?,
-
-    @field:SerializedName("place")
-    val place: ImageMetaData?,
-
-    @field:SerializedName("name")
-    val name: String?
-)
-
-data class ImageMetaData(
+data class PlaceDetail(
     @field:SerializedName("nama")
     val nama: String?,
 
@@ -23,14 +12,22 @@ data class ImageMetaData(
     @field:SerializedName("rating_tourism")
     val rating_tourism: Float?,
 
-    @field:SerializedName("nearest_restaurants")
-    val nearest_restaurants: List<Restaurant>?,
-
-    @field:SerializedName("important_unique_facts")
-    val important_unique_facts: List<String>?,
+    @field:SerializedName("important_facts")
+    val important_facts: List<String>?,
 
     @field:SerializedName("sejarah")
-    val sejarah: String?
+    val sejarah: String?,
+)
+
+data class Place(
+    @field:SerializedName("prediction")
+    val nama: String? = null,
+
+    @field:SerializedName("detail")
+    val detail: PlaceDetail? = null,
+
+    @field:SerializedName("probability")
+    val probability: Float? = null,
 )
 
 data class Restaurant(

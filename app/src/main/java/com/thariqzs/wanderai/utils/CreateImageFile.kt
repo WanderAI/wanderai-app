@@ -27,6 +27,5 @@ fun createImageFile(context: Context): File {
     val imageFileName = "JPEG_$timeStamp.jpg"
     val image = File(imageDirectory, imageFileName)
 
-    Log.d(TAG, "image: $image")
     return image
 }

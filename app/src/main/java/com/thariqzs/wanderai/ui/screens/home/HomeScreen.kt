@@ -1,14 +1,8 @@
 package com.thariqzs.wanderai.ui.screens.home
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.net.Uri
 import android.os.Build
-import android.os.FileUtils
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -39,8 +33,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,6 +56,7 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.thariqzs.wanderai.R
+import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
@@ -73,16 +72,49 @@ import com.thariqzs.wanderai.ui.theme.sh2
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import com.thariqzs.wanderai.utils.TokenViewModel
 import com.thariqzs.wanderai.utils.createImageFile
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
-import java.io.IOException
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewModel) {
     val TAG = "hsthoriq"
+    val context = LocalContext.current
+
+    val placeRes by hvm._placeResponse.observeAsState()
+
+    when (val response = placeRes) {
+        is ApiResponse.Success -> {
+            val data = response.data.data
+//            Log.d(TAG, "res: ${response}")
+//            Log.d(TAG, "data1212: ${hvm.navigationCompleted}")
+            if (data != null && !hvm.navigationCompleted) {
+                hvm.place = data
+//                Log.d(TAG, "data: $navigationCompleted")
+                LaunchedEffect(Unit) {
+                    navController.navigate(Routes.PlaceDetail) // Navigate to PlaceDetail screen
+                    hvm.navigationCompleted = true // Set the flag to indicate navigation has occurred
+                }
+            }
+        }
+
+        is ApiResponse.Failure -> {
+            val errorMessage = response.errorMessage
+            Toast.makeText(context, "${errorMessage}", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "failure: ${errorMessage}")
+            // Handle failure case if needed
+        }
+
+        is ApiResponse.Loading -> {
+            Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "loading... ")
+            // Handle loading state if needed
+        }
+
+        else -> {
+//            Log.d(TAG, "else: ${response}")
+        }
+    }
 
     HomeScreenBody(navController = navController, vm, hvm)
     if (hvm.showDialog) {
@@ -100,6 +132,7 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
         ) { imageUri ->
             if (imageUri != null) {
                 hvm.imageUri = imageUri
+                hvm.navigationCompleted = false
 
                 val inputStream = context.contentResolver.openInputStream(imageUri)
                 val file = File.createTempFile("ml-scan", ".jpeg", context.cacheDir)
@@ -112,32 +145,47 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
                 }
 
                 hvm.testfile = file
-                    if (hvm.testfile.exists()) {
-                        hvm.sendImage(object : CoroutinesErrorHandler {
-                            override fun onError(message: String) {
-                                Log.d("hsthoriq senimage", "onError: $message")
-                            }
-                        })
-                        hvm.printUri()
-                        hvm.showDialog = false
-                    } else {
-                        Log.d("hsthoriq senimage", "Gaada bang")
-                    }
-
+                if (hvm.testfile.exists()) {
+                    hvm.sendImage(object : CoroutinesErrorHandler {
+                        override fun onError(message: String) {
+                            Log.d("hsthoriq senimage", "onError: $message")
+                        }
+                    })
+//                    hvm.printUri()
+                    hvm.showDialog = false
+                } else {
+                    Log.d("hsthoriq senimage", "Gaada bang")
+                }
             }
-
         }
 
         val cameraLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
                 hvm.imageUri = uri
-                            hvm.sendImage(object : CoroutinesErrorHandler {
-                                override fun onError(message: String) {
-                                    Log.d("hsthoriq senimage", "onError: $message")
-                                }
-                            })
-                hvm.printUri()
-                hvm.showDialog = false
+                hvm.navigationCompleted = false
+
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val file = File.createTempFile("ml-scan", ".jpeg", context.cacheDir)
+                val outputStream = FileOutputStream(file)
+
+                inputStream.use { input ->
+                    outputStream.use { output ->
+                        input?.copyTo(output)
+                    }
+                }
+
+                hvm.testfile = file
+                if (hvm.testfile.exists()) {
+                    hvm.sendImage(object : CoroutinesErrorHandler {
+                        override fun onError(message: String) {
+                            Log.d("hsthoriq senimage", "onError: $message")
+                        }
+                    })
+//                    hvm.printUri()
+                    hvm.showDialog = false
+                } else {
+                    Log.d("hsthoriq senimage", "Gaada bang")
+                }
             }
 
         val permissionLauncher = rememberLauncherForActivityResult(
@@ -232,14 +280,14 @@ fun HomeScreenBody(navController: NavController, vm: TokenViewModel, hvm: HomeVi
 
             )
 
-        if (hvm.imageUri.path?.isNotEmpty() == true) {
-            Image(
-                modifier = Modifier
-                    .padding(16.dp, 8.dp),
-                painter = rememberImagePainter(hvm.imageUri),
-                contentDescription = null
-            )
-        }
+//        if (hvm.imageUri.path?.isNotEmpty() == true) {
+//            Image(
+//                modifier = Modifier
+//                    .padding(16.dp, 8.dp),
+//                painter = rememberImagePainter(hvm.imageUri),
+//                contentDescription = null
+//            )
+//        }
     }
 }
 

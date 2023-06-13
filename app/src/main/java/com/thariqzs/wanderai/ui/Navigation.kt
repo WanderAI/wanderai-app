@@ -1,5 +1,7 @@
 package com.thariqzs.wanderai.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +16,7 @@ import com.thariqzs.wanderai.ui.screens.auth.AuthViewModel
 import com.thariqzs.wanderai.ui.screens.home.HomeScreen
 import com.thariqzs.wanderai.ui.screens.home.HomeViewModel
 import com.thariqzs.wanderai.ui.screens.listplan.ListPlanScreen
+import com.thariqzs.wanderai.ui.screens.placedetail.PlaceDetailScreen
 import com.thariqzs.wanderai.ui.screens.plandetail.PlanDetailScreen
 import com.thariqzs.wanderai.ui.screens.profile.ProfileScreen
 import com.thariqzs.wanderai.ui.screens.resetpassword.ResetPasswordScreen
@@ -29,7 +32,7 @@ object Routes {
     const val PlanDetail = "plan_detail"
     const val Profile = "profile"
     const val ResetPassword = "reset_password"
-//    const val GameDetails = "game_details/{gameId}"
+    const val PlaceDetail = "place_detail"
 //    const val NewGames = "new_games/{minReleaseTimestamp}/{subtitle}"
 //    const val UpcomingReleases = "upcoming_releases"
 //    const val PopularGames = "popular_games/{minReleaseTimestamp}/{subtitle}"
@@ -43,10 +46,12 @@ object Routes {
 //        "popular_games/$minReleaseTimestamp/$subtitle"
 }
 
+@RequiresApi(Build.VERSION_CODES.P)
 @ExperimentalFoundationApi
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
+    val homeViewModel = hiltViewModel<HomeViewModel>()
 
     NavHost(
         navController = navController,
@@ -61,7 +66,6 @@ fun Navigation() {
 
         composable(Routes.Home) {
             val tokenViewModel = hiltViewModel<TokenViewModel>()
-            val homeViewModel = hiltViewModel<HomeViewModel>()
             HomeScreen(navController = navController, tokenViewModel, homeViewModel)
         }
 
@@ -86,6 +90,10 @@ fun Navigation() {
         composable(Routes.ResetPassword) {
             val authViewModel = hiltViewModel<AuthViewModel>()
             ResetPasswordScreen(navController = navController, authViewModel)
+        }
+
+        composable(Routes.PlaceDetail) {
+            PlaceDetailScreen(navController = navController, homeViewModel)
         }
     }
 }

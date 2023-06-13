@@ -62,6 +62,7 @@ import com.thariqzs.wanderai.utils.TokenViewModel
 @Composable
 fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewModel) {
     val context = LocalContext.current
+    val TAG = "asthoriq"
 
     val loginRes by vm.loginResponse.observeAsState()
 
@@ -70,20 +71,24 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
             val data = response.data
             if (tvm.token.value.isNullOrBlank()) {
                 navController.navigate(Routes.Home)
-                tvm.saveToken(data.data.token.toString())
+                tvm.saveToken(data.data?.token.toString())
             }
         }
 
         is ApiResponse.Failure -> {
             val errorMessage = response.errorMessage
+            Log.d(TAG, "failure: ${errorMessage}")
             // Handle failure case if needed
         }
 
         is ApiResponse.Loading -> {
+            Log.d(TAG, "loading... ")
             // Handle loading state if needed
         }
 
-        else -> {}
+        else -> {
+            Log.d(TAG, "else: ${response}")
+        }
     }
 
     val store = TokenManager(context)
