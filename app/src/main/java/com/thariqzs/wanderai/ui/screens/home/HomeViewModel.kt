@@ -1,5 +1,6 @@
 package com.thariqzs.wanderai.ui.screens.home
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -14,6 +15,7 @@ import com.thariqzs.wanderai.data.repository.HomeRepository
 import com.thariqzs.wanderai.utils.BaseViewModel
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.io.File
 import javax.inject.Inject
 
 
@@ -23,6 +25,8 @@ class HomeViewModel @Inject constructor(private val homeRepository: HomeReposito
 val TAG = "hvmthoriq"
     var showDialog by mutableStateOf(false)
     var imageUri by mutableStateOf(Uri.EMPTY)
+    var bitmap by mutableStateOf(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+    var testfile by mutableStateOf(File(""))
 
     var _imageResponse = MutableLiveData<ApiResponse<DefaultResponse<ImageData>>>()
 
@@ -34,6 +38,6 @@ val TAG = "hvmthoriq"
     fun sendImage(coroutinesErrorHandler: CoroutinesErrorHandler) =
         baseRequest(_imageResponse, coroutinesErrorHandler) {
             Log.d("hvmthoriq", "imageUri: $imageUri")
-            homeRepository.sendImage(imageUri)
+            homeRepository.sendImage(testfile)
         }
 }

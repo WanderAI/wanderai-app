@@ -37,7 +37,7 @@ interface ApiService {
     @POST("event/recommendation-by-image")
     suspend fun sendImage(
         @Part image: MultipartBody.Part,
-        @Part("FirstName") fname: RequestBody,
-        @Part("Id") id: RequestBody
+//        @Part("FirstName") fname: RequestBody,
+//        @Part("Id") id: RequestBody
     ): Response<DefaultResponse<ImageData>>
 }

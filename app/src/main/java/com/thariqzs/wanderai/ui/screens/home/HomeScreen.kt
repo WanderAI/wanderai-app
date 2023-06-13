@@ -1,12 +1,19 @@
 package com.thariqzs.wanderai.ui.screens.home
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
+import android.os.FileUtils
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,6 +39,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,9 +73,13 @@ import com.thariqzs.wanderai.ui.theme.sh2
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import com.thariqzs.wanderai.utils.TokenViewModel
 import com.thariqzs.wanderai.utils.createImageFile
+import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.InputStream
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewModel) {
     val TAG = "hsthoriq"
@@ -86,30 +99,43 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
             ActivityResultContracts.GetContent()
         ) { imageUri ->
             if (imageUri != null) {
-//                val file = File(imageUri.path)
-//                if (file != null) {
+                hvm.imageUri = imageUri
 
-                    hvm.imageUri = imageUri
+                val inputStream = context.contentResolver.openInputStream(imageUri)
+                val file = File.createTempFile("ml-scan", ".jpeg", context.cacheDir)
+                val outputStream = FileOutputStream(file)
 
-                    hvm.sendImage(object : CoroutinesErrorHandler {
-                        override fun onError(message: String) {
-                            Log.d("hsthoriq senimage", "onError: $message")
-                        }
-                    })
-                    hvm.printUri()
-                    hvm.showDialog = false
-//                }
+                inputStream.use { input ->
+                    outputStream.use { output ->
+                        input?.copyTo(output)
+                    }
+                }
+
+                hvm.testfile = file
+                    if (hvm.testfile.exists()) {
+                        hvm.sendImage(object : CoroutinesErrorHandler {
+                            override fun onError(message: String) {
+                                Log.d("hsthoriq senimage", "onError: $message")
+                            }
+                        })
+                        hvm.printUri()
+                        hvm.showDialog = false
+                    } else {
+                        Log.d("hsthoriq senimage", "Gaada bang")
+                    }
+
             }
+
         }
 
         val cameraLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
                 hvm.imageUri = uri
-    //            hvm.sendImage(object : CoroutinesErrorHandler {
-    //                override fun onError(message: String) {
-    //                    Log.d("hsthoriq senimage", "onError: $message")
-    //                }
-    //            })
+                            hvm.sendImage(object : CoroutinesErrorHandler {
+                                override fun onError(message: String) {
+                                    Log.d("hsthoriq senimage", "onError: $message")
+                                }
+                            })
                 hvm.printUri()
                 hvm.showDialog = false
             }
