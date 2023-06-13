@@ -412,7 +412,6 @@ fun CustomDialog(
     val interactionSource = remember { MutableInteractionSource() }
 
     Dialog(onDismissRequest = {
-        Log.d("thoriqtestdialog", "CustomDialog: test")
         setShowDialog(false)
     }) {
         Surface(

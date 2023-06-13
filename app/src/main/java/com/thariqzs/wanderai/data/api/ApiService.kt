@@ -34,10 +34,10 @@ interface ApiService {
     ): Response<DefaultResponse<User>>
 
     @Multipart
-    @POST("event/predict-image")
+    @POST("event/recommendation-by-image")
     suspend fun sendImage(
         @Part image: MultipartBody.Part,
-        @Part("FirstName") fname: RequestBody,
-        @Part("Id") id: RequestBody
+//        @Part("FirstName") fname: RequestBody,
+//        @Part("Id") id: RequestBody
     ): Response<DefaultResponse<ImageData>>
 }

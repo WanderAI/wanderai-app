@@ -18,7 +18,6 @@ fun createImageFile(context: Context): File {
 
     val imageDirectory = File(context.getExternalFilesDir(null), "my_images")
     imageDirectory.mkdirs()
-    Log.d(TAG, "imageDirectory: $imageDirectory")
 
     val timeStamp: String = SimpleDateFormat(
         FILENAME_FORMAT,
