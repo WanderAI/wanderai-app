@@ -65,60 +65,66 @@ import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import com.thariqzs.wanderai.utils.TokenViewModel
 import com.thariqzs.wanderai.utils.createImageFile
 import java.io.File
+import java.io.InputStream
 
 @Composable
 fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewModel) {
-    val context = LocalContext.current
     val TAG = "hsthoriq"
-
-    val file = createImageFile(context)
-    val uri = FileProvider.getUriForFile(
-        context,
-        "com.thariqzs.wanderai", file
-    )
-
-    val pickPictureLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { imageUri ->
-        if (imageUri != null) {
-            val file = File(imageUri.path)
-            if (file != null) {
-                hvm.imageUri = Uri.fromFile(file)
-
-                hvm.sendImage(object : CoroutinesErrorHandler {
-                    override fun onError(message: String) {
-                        Log.d("hsthoriq senimage", "onError: $message")
-                    }
-                })
-            }
-        }
-    }
-
-    val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            hvm.imageUri = uri
-
-            hvm.sendImage(object : CoroutinesErrorHandler {
-                override fun onError(message: String) {
-                    Log.d("hsthoriq senimage", "onError: $message")
-                }
-            })
-            Log.d(TAG, "HomeScreen: $uri")
-        }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) {
-        if (it) {
-            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
-            cameraLauncher.launch(uri)
-        } else {
-            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     HomeScreenBody(navController = navController, vm, hvm)
     if (hvm.showDialog) {
+        val context = LocalContext.current
+
+        val file = createImageFile(context)
+        val uri = FileProvider.getUriForFile(
+            context,
+            "com.thariqzs.wanderai", file
+        )
+
+
+        val pickPictureLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { imageUri ->
+            if (imageUri != null) {
+//                val file = File(imageUri.path)
+//                if (file != null) {
+
+                    hvm.imageUri = imageUri
+
+                    hvm.sendImage(object : CoroutinesErrorHandler {
+                        override fun onError(message: String) {
+                            Log.d("hsthoriq senimage", "onError: $message")
+                        }
+                    })
+                    hvm.printUri()
+                    hvm.showDialog = false
+//                }
+            }
+        }
+
+        val cameraLauncher =
+            rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+                hvm.imageUri = uri
+    //            hvm.sendImage(object : CoroutinesErrorHandler {
+    //                override fun onError(message: String) {
+    //                    Log.d("hsthoriq senimage", "onError: $message")
+    //                }
+    //            })
+                hvm.printUri()
+                hvm.showDialog = false
+            }
+
+        val permissionLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) {
+            if (it) {
+                Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+                cameraLauncher.launch(uri)
+            } else {
+                Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         Dialog(onDismissRequest = { hvm.showDialog = false }) {
             Surface(
                 Modifier
@@ -160,7 +166,10 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    TakeImageCard(R.drawable.ic_photo_library, "Gallery", {pickPictureLauncher.launch("image/*")})
+                    TakeImageCard(
+                        R.drawable.ic_photo_library,
+                        "Gallery"
+                    ) { pickPictureLauncher.launch("image/*") }
                 }
             }
         }
@@ -264,7 +273,7 @@ fun Body(navController: NavController, hvm: HomeViewModel) {
             "Buat rencana perjalanan sesuai keinginanmu secara otomatis!",
             image = R.drawable.ic_phone,
             btnColor = OrangeNormal, handleNavigate = {
-hvm.showDialog = true
+                hvm.showDialog = true
 
             }
         )

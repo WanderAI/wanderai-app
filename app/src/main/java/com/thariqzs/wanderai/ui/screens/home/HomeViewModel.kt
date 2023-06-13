@@ -20,11 +20,16 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val homeRepository: HomeRepository) :
     BaseViewModel() {
-
+val TAG = "hvmthoriq"
     var showDialog by mutableStateOf(false)
     var imageUri by mutableStateOf(Uri.EMPTY)
 
     var _imageResponse = MutableLiveData<ApiResponse<DefaultResponse<ImageData>>>()
+
+    fun printUri(){
+        Log.d(TAG, "printUri: ${imageUri.path}")
+        Log.d(TAG, "imageUri.path?.isNotEmpty(): ${imageUri.path?.isNotEmpty()}")
+    }
 
     fun sendImage(coroutinesErrorHandler: CoroutinesErrorHandler) =
         baseRequest(_imageResponse, coroutinesErrorHandler) {

@@ -7,6 +7,8 @@ import com.thariqzs.wanderai.utils.apiRequestFlow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 import javax.inject.Inject;
@@ -16,15 +18,17 @@ class HomeRepository @Inject constructor(
 ) {
     val TAG = "hrthoriq"
     fun sendImage(uri: Uri) = apiRequestFlow {
-        val file = File("/storage/emulated/0/Android/data/com.thariqzs.wanderai/files" + uri.path)
-        Log.d(TAG, "sendImage: $file")
+        val file = File("/storage/emulated/0/Android/data/com.thariqzs.wanderai" + uri.path)
+//        Log.d(TAG, "file: $file")
+//        Log.d(TAG, "uri: ${uri}")
+//        Log.d(TAG, "uri.path: ${uri.path}")
         file.let {
-            val requestFile = RequestBody.create("image/*".toMediaTypeOrNull(), file)
+            val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
             val imagePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
             // Set other request parameters
-            val firstName = RequestBody.create(MultipartBody.FORM, "THORIQ")
-            val id = RequestBody.create(MultipartBody.FORM, "foto_thoriq")
+            val firstName = "THORIQ".toRequestBody(MultipartBody.FORM)
+            val id = "foto_thoriq".toRequestBody(MultipartBody.FORM)
 
             apiService.sendImage(imagePart, firstName, id)
         }
