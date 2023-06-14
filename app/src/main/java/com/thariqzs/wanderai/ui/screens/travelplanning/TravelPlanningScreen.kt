@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -47,6 +48,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
@@ -61,6 +64,7 @@ import com.thariqzs.wanderai.data.api.model.BudgetDetail
 import com.thariqzs.wanderai.data.api.model.CityDetail
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.screens.listplan.PlanCard
+import com.thariqzs.wanderai.ui.screens.shared.components.CustomTextInput
 import com.thariqzs.wanderai.ui.screens.shared.components.CustomTextInputChat
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
@@ -85,6 +89,7 @@ fun TravelPlanningScreen(navController: NavController, tpvm: TravelPlanningViewM
 
 @Composable
 fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningViewModel) {
+    val TAG = "tpsthoriq"
     var q by remember { mutableStateOf("") }
 
     Column(
@@ -101,13 +106,13 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
         enabled = tpvm.chatEnabled
     )
 
-    if (tpvm.showDialog) {
+    if (tpvm.showDialogDestination) {
         CustomDialog(
             q,
             onValueChange = { q = it },
-            tpvm.showDialog,
+            tpvm.showDialogDestination,
             setShowDialog = {
-                tpvm.showDialog = it
+                tpvm.showDialogDestination = it
             },
             cityList = tpvm.cityList,
             onClickItem = { id -> tpvm.setCityActive(id) },
@@ -115,29 +120,40 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
             onSaveSelection = { tpvm.userResponse(3) })
     }
 
-    if (tpvm.showDialog2) {
-        DatePickerDialog(tpvm.showDialog2, setShowDialog = {
-            tpvm.showDialog2 = it
+    if (tpvm.showDialogDate) {
+        DatePickerDialog(tpvm.showDialogDate, setShowDialog = {
+            tpvm.showDialogDate = it
         }, onSelectDate = {
             tpvm.userResponse(4)
         },
             selectedRange = tpvm.selectedRange,
-            setSelectedRange = { tpvm.selectedRange = it}
+            setSelectedRange = { tpvm.selectedRange = it }
         )
     }
 
-    if (tpvm.showDialog3) {
+    if (tpvm.showDialogBudget) {
         CustomDialogBudget(
             q,
             onValueChange = { q = it },
-            tpvm.showDialog3,
+            tpvm.showDialogBudget,
             setShowDialog = {
-                tpvm.showDialog3 = it
+                tpvm.showDialogBudget = it
             },
             budgetList = tpvm.budget,
             onClickItem = { id -> tpvm.setBudgetActive(id) },
             selectedBudgetList = tpvm.selectedBudget,
             onSaveSelection = { tpvm.userResponse(5) })
+    }
+
+    if (tpvm.showDialogNumOfUser) {
+        CustomDialogNumOfPerson(
+            value = tpvm.numOfUser,
+            onValueChange = {
+                Log.d(TAG, "it: $it")
+                tpvm.numOfUser = it },
+            showDialog = tpvm.showDialogNumOfUser,
+            setShowDialog = { tpvm.showDialogNumOfUser = it },
+            onSaveSelection = { tpvm.userResponse(9) })
     }
 }
 
@@ -497,46 +513,6 @@ fun CustomDialog(
                         .height(2.dp)
                         .border(1.dp, Gray300)
                 )
-                var active by remember {
-                    mutableStateOf(false)
-                }
-                Card(
-                    Modifier
-                        .fillMaxWidth()
-                        .border(2.dp, BorderColor, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 12.dp, vertical = 16.dp)
-                        .clip(
-                            RoundedCornerShape(12.dp)
-                        )
-                ) {
-                    Row(
-                        Modifier
-                            .background(Color.White)
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            Modifier
-                                .size(20.dp)
-                                .border(2.dp, BlueNormal, RoundedCornerShape(20.dp))
-                                .clip(RoundedCornerShape(20.dp))
-                        ) {
-                            if (active) {
-                                Box(
-                                    Modifier
-                                        .size(12.dp)
-                                        .background(BlueNormal, RoundedCornerShape(20.dp))
-                                        .clip(RoundedCornerShape(20.dp))
-                                        .align(Alignment.Center)
-                                ) {
-
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Belum menemukan yang cocok. Tolong pilihkan untukku", style = b2)
-                    }
-                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     modifier = Modifier.fillMaxWidth(),
@@ -710,46 +686,6 @@ fun CustomDialogBudget(
                         .height(2.dp)
                         .border(1.dp, Gray300)
                 )
-                var active by remember {
-                    mutableStateOf(false)
-                }
-                Card(
-                    Modifier
-                        .fillMaxWidth()
-                        .border(2.dp, BorderColor, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 12.dp, vertical = 16.dp)
-                        .clip(
-                            RoundedCornerShape(12.dp)
-                        )
-                ) {
-                    Row(
-                        Modifier
-                            .background(Color.White)
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            Modifier
-                                .size(20.dp)
-                                .border(2.dp, BlueNormal, RoundedCornerShape(20.dp))
-                                .clip(RoundedCornerShape(20.dp))
-                        ) {
-                            if (active) {
-                                Box(
-                                    Modifier
-                                        .size(12.dp)
-                                        .background(BlueNormal, RoundedCornerShape(20.dp))
-                                        .clip(RoundedCornerShape(20.dp))
-                                        .align(Alignment.Center)
-                                ) {
-
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Belum menemukan yang cocok. Tolong pilihkan untukku", style = b2)
-                    }
-                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     modifier = Modifier.fillMaxWidth(),
@@ -763,8 +699,86 @@ fun CustomDialogBudget(
     }
 }
 
-//@Preview(showBackground = true, widthDp = 360)
-//@Composable
-//fun Preview() {
-//    TravelPlanningScreen(rememberNavController())
-//}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomDialogNumOfPerson(
+    value: String,
+    onValueChange: (String) -> Unit,
+    showDialog: Boolean,
+    setShowDialog: (Boolean) -> Unit,
+    onSaveSelection: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Dialog(onDismissRequest = {
+        setShowDialog(false)
+    }) {
+        Surface(
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 100.dp),
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White,
+        ) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Jumlah Orang", style = h4)
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_close),
+                        contentDescription = "ic_close",
+                        tint = PinkNormal,
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clickable {
+                                setShowDialog(false)
+                            }
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                CustomTextInput(
+                    containerModifier = Modifier.background(Color.White),
+                    label = "",
+                    value = value,
+                    onValueChange = { onValueChange(it) },
+                    noLabel = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp)
+                        .height(2.dp)
+                        .border(1.dp, Gray300)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { onSaveSelection() },
+                    colors = ButtonDefaults.buttonColors(containerColor = BlueNormal),
+                ) {
+                    Text("Selanjutnya", color = Color.White, style = b2)
+                }
+            }
+        }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun Preview() {
+    CustomDialogNumOfPerson(
+        "2", {},
+        true,
+        {},
+        {},
+    )
+}
