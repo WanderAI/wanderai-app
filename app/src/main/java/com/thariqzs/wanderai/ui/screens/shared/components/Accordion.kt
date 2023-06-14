@@ -3,9 +3,11 @@ package com.thariqzs.wanderai.ui.screens.shared.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,10 +22,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.ui.theme.*
 
 data class AccordionModel(
@@ -35,38 +41,37 @@ data class AccordionModel(
         val price: String
     )
 }
-
-@Composable
-fun AccordionGroup(modifier: Modifier = Modifier, group: List<AccordionModel>) {
-    Column(modifier = modifier) {
-        group.forEach {
-            Accordion(model = it)
-        }
-    }
-}
+//
+//@Composable
+//fun AccordionGroup(modifier: Modifier = Modifier, group: List<AccordionModel>) {
+//    Column(modifier = modifier) {
+//        group.forEach {
+//            Accordion(model = it, title)
+//        }
+//    }
+//}
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun Accordion(modifier: Modifier = Modifier, model: AccordionModel) {
+fun Accordion(modifier: Modifier = Modifier, header: String, children: @Composable () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
 
-    Column(modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-        AccordionHeader(title = model.header, isExpanded = expanded) {
+    Column(
+        modifier
+            .padding(vertical = 8.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .border(1.dp, BlueLight.copy(0.2f), RoundedCornerShape(24.dp))) {
+        AccordionHeader(title = header, isExpanded = expanded) {
             expanded = !expanded
         }
         AnimatedVisibility(visible = expanded) {
             Surface(
-                color = White,
-                shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(1.dp, Gray200),
-                modifier = Modifier.padding(top = 8.dp)
+                color = White
+//                shape = RoundedCornerShape(24.dp),
+//                modifier = Modifier.padding(top = 8.dp)
             ) {
-                Column {
-//                    items(model.rows) { row ->
-                    for (i in 1..4)
-                        AccordionRow(model.rows[0])
-                        Divider(color = Gray200, thickness = 1.dp)
-//                    }
+                Column (Modifier.fillMaxWidth().padding(20.dp)) {
+                    children()
                 }
             }
         }
@@ -83,9 +88,10 @@ private fun AccordionHeader(
     val degrees = if (isExpanded) 180f else 0f
 
     Surface(
+//        Modifier.border(1.dp, BlueLight.copy(0.2f), RoundedCornerShape(isExpanded ? 24.dp)),
         color = White,
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Gray200),
+//        shape = RoundedCornerShape(24.dp),
+//        border = BorderStroke(1.dp, BlueLight.copy(0.2f)),
 //        elevation = 8.dp,
     ) {
         Row(
@@ -95,9 +101,9 @@ private fun AccordionHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(title, Modifier.weight(1f), style = sh2, color = Gray600)
-            Surface(shape = CircleShape, color = BlueNormal.copy(alpha = 0.6f)) {
+            Surface(shape = RoundedCornerShape(8.dp), color = OrangeNormal) {
                 Icon(
-                    Icons.Outlined.ArrowDropDown,
+                    painter = painterResource(id = R.drawable.ic_chevron_bottom),
                     contentDescription = "arrow-down",
                     modifier = Modifier.rotate(degrees),
                     tint = White

@@ -27,21 +27,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.HistoryDetail
+import com.thariqzs.wanderai.data.api.model.TourismData
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.screens.home.HomeViewModel
 import com.thariqzs.wanderai.ui.screens.shared.components.Accordion
-import com.thariqzs.wanderai.ui.screens.shared.components.AccordionModel
-import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
-import com.thariqzs.wanderai.ui.theme.BlueOld
 import com.thariqzs.wanderai.ui.theme.b1
+import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
@@ -55,6 +56,7 @@ fun PlanDetailScreen(navController: NavController, docId: String, hvm: HomeViewM
     val historyDetailRes by hvm._historyDetailResponse.observeAsState()
 
     LaunchedEffect(docId) {
+        Log.d(TAG, "PlanDetailScreen: $docId")
         if (docId != null) {
             hvm.getHistoryDetail(object : CoroutinesErrorHandler {
                 override fun onError(message: String) {
@@ -154,24 +156,11 @@ fun PlanDetailScreenBody(data: HistoryDetail) {
         )
     }
 
-    val modelTechStocks = AccordionModel(
-        header = "Technology Stocks",
-        rows = mutableListOf(
-            AccordionModel.Row(security = "AAPL", "$328.00"),
-            AccordionModel.Row(security = "GOOGL", "$328.00"),
-            AccordionModel.Row(security = "NFLX", "$198.00"),
-            AccordionModel.Row(security = "META", "$200.00"),
-            AccordionModel.Row(security = "TSLA", "$769.16"),
-        )
-    )
-
     Column(
         Modifier
             .verticalScroll(rememberScrollState())
             .fillMaxSize()
-            .padding(horizontal = 24.dp)
-
-        , horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 24.dp), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
             Modifier
@@ -180,7 +169,8 @@ fun PlanDetailScreenBody(data: HistoryDetail) {
                 .background(Color.White)
                 .padding(16.dp)
         ) {
-            Column(Modifier
+            Column(
+                Modifier
             ) {
                 Text("\uD83D\uDDD3️ Date", style = h4, modifier = Modifier.padding(bottom = 4.dp))
                 Text(formattedDateRange ?: "-", style = b1)
@@ -206,30 +196,99 @@ fun PlanDetailScreenBody(data: HistoryDetail) {
                 )
             }
         }
-        Spacer(Modifier.height(16.dp))
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(40.dp))
-                .background(blueNormalWithOpacity)
-                .padding(vertical = 12.dp)
-        ) {
-            Text("Rencana Day 1", style = h4, color = BlueNormal, modifier = Modifier.align(
-                Alignment.Center))
+        if (data.data != null) {
+            if (data.data.tourism_lists_each_day != null) {
+                for (i in 0..((data.data.tourism_lists_each_day.size - 1) ?: 0)) {
+                    Spacer(Modifier.height(16.dp))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(40.dp))
+                            .background(blueNormalWithOpacity)
+                            .padding(vertical = 12.dp)
+                    ) {
+                        Text(
+                            "Rencana Day ${i + 1}",
+                            style = h4,
+                            color = BlueNormal,
+                            modifier = Modifier.align(
+                                Alignment.Center
+                            )
+                        )
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Text("Tourism List", style = sh2, color = BlueNormal)
+                    Log.d(
+                        TAG,
+                        "data.data.tourism_lists_each_day[i].size: ${data.data.tourism_lists_each_day[i].size}"
+                    )
+                    for (j in 0..((data.data.tourism_lists_each_day[i].size - 1) ?: 0)) {
+                        val tourism = data.data.tourism_lists_each_day[i][j]
+                        Log.d(TAG, "tourism: ${tourism}")
+                        Accordion(header = tourism.name ?: "") {
+                            TourismItem(tourism)
+                        }
+                    }
+                }
+//                Spacer(Modifier.height(16.dp))
+//                Text("Restaurant Recommendation", style = sh2, color = BlueNormal)
+//                Accordion(header = "test") {
+//                    Text("test")
+//                }
+            }
         }
-        Spacer(Modifier.height(16.dp))
-        Text("Tourism List", style = sh2, color = BlueNormal)
-        Accordion(model = modelTechStocks)
-        Accordion(model = modelTechStocks)
-        Accordion(model = modelTechStocks)
-        Accordion(model = modelTechStocks)
-        Accordion(model = modelTechStocks)
-        Accordion(model = modelTechStocks)
-        Accordion(model = modelTechStocks)
-        Accordion(model = modelTechStocks)
-        Accordion(model = modelTechStocks)
-        Text("Tourism List", style = sh2, color = BlueNormal)
     }
+}
+
+@Composable
+fun TourismItem(tourism: TourismData) {
+    if (tourism.image_link != null) {
+        AsyncImage(
+            model = (tourism.image_link ?: ""),
+            contentDescription = null,
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier
+                .fillMaxWidth()
+//                .height(288.dp)
+                .clip(RoundedCornerShape(24.dp))
+        )
+    }
+    Spacer(Modifier.height(12.dp))
+    Text("Deskripsi", style = sh2)
+    Spacer(Modifier.height(4.dp))
+    Text(tourism.description ?: "", style = b2)
+    Spacer(Modifier.height(12.dp))
+    Row(Modifier.fillMaxWidth()) {
+        Column() {
+            Text("Category", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text(tourism.category ?: "", style = b2)
+        }
+        Spacer(Modifier.weight(1f))
+        Column() {
+            Text("City", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text(tourism.city ?: "", style = b2)
+        }
+    }
+    Spacer(Modifier.height(12.dp))
+    Row(Modifier.fillMaxWidth()) {
+        Column() {
+            Text("Rating", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text(tourism.rating.toString() ?: "", style = b2)
+        }
+        Spacer(Modifier.weight(1f))
+        Column() {
+            Text("Cost Range", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text(tourism.cost_range_min.toString() ?: "", style = b2)
+        }
+    }
+    Spacer(Modifier.height(12.dp))
+    Text("Formatted Address", style = sh2)
+    Spacer(Modifier.height(4.dp))
+    Text(tourism.formatted_address ?: "", style = b2)
 }
 
 //@Preview(showBackground = true, widthDp = 360)
