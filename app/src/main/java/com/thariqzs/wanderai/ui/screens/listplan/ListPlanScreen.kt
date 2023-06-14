@@ -3,7 +3,6 @@ package com.thariqzs.wanderai.ui.screens.listplan
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.R
+import com.thariqzs.wanderai.data.api.model.History
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
@@ -78,7 +78,7 @@ fun ScreenHeader(navController: NavController) {
 }
 
 @Composable
-fun PlanCard(navigateTo: () -> Unit) {
+fun PlanCard(navigateTo: () -> Unit, item: History? = History()) {
     val blueLightWithOpacity = BlueLight.copy(alpha = 0.2f)
 
     Card(
@@ -89,7 +89,7 @@ fun PlanCard(navigateTo: () -> Unit) {
     ) {
         Row(Modifier.background(Color.White), verticalAlignment = Alignment.CenterVertically) {
             Column() {
-                Text("Yogyakarta", style = sh2)
+                Text(item?.city ?: "Not Found", style = sh2)
                 Spacer(modifier = Modifier.height(12.dp))
                 Row() {
                     Icon(
@@ -98,7 +98,7 @@ fun PlanCard(navigateTo: () -> Unit) {
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("24 Mei 2023", style = b2)
+                    Text(item?.date_start ?: "-", style = b2)
                 }
             }
             Spacer(modifier = Modifier.weight(1f))

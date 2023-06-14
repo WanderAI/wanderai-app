@@ -27,6 +27,11 @@ data class RegisterRequest(
     val name: String
 )
 
+data class RandomRequest(
+    val day_start: String,
+    val day_end: String,
+)
+
 interface ApiService {
     @POST("user/login")
     suspend fun loginUser(
@@ -49,4 +54,9 @@ interface ApiService {
 
     @GET("event/recommendation-detail/{id}")
     suspend fun getDetail(@Path("id") id: String): Response<DefaultResponse<HistoryDetail>>
+
+    @POST("event/recommendation-random")
+    suspend fun requestRandom(
+        @Body request: RandomRequest,
+    ): Response<DefaultResponse<History>>
 }

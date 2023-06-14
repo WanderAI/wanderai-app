@@ -282,7 +282,7 @@ fun HomeScreenBody(navController: NavController, vm: TokenViewModel, hvm: HomeVi
             }
     ) {
 
-        Header(name = "Rey", navController = navController, vm = vm)
+        Header(name = "Thoriq", navController = navController, vm = vm)
         Body(navController, hvm)
         if (hvm.history.size > 0) {
             ListPlan(navController, hvm.history)

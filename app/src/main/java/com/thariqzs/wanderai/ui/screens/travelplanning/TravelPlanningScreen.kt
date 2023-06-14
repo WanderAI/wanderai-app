@@ -4,6 +4,7 @@ package com.thariqzs.wanderai.ui.screens.travelplanning
 
 import android.util.Log
 import android.util.Range
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,8 +63,10 @@ import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 import com.thariqzs.wanderai.R
+import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.BudgetDetail
 import com.thariqzs.wanderai.data.api.model.CityDetail
+import com.thariqzs.wanderai.data.api.model.History
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.screens.listplan.PlanCard
 import com.thariqzs.wanderai.ui.screens.shared.components.CustomTextInput
@@ -80,10 +85,39 @@ import com.thariqzs.wanderai.ui.theme.a
 import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
+import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import java.time.LocalDate
 
 @Composable
 fun TravelPlanningScreen(navController: NavController, tpvm: TravelPlanningViewModel) {
+    val planRes by tpvm.planResponse.observeAsState()
+    val context = LocalContext.current
+    val TAG = "tpsthoriq"
+
+    when (val response = planRes) {
+        is ApiResponse.Success -> {
+            val data = response.data.data
+            if (data != null) {
+                tpvm.requestResult = History(data.doc_id, data.city, data.date_start, data.date_end)
+            }
+        }
+
+        is ApiResponse.Failure -> {
+            val errorMessage = response.errorMessage
+            Toast.makeText(context, "${errorMessage}", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "failure: ${errorMessage}")
+        }
+
+        is ApiResponse.Loading -> {
+            Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "loading... ")
+        }
+
+        else -> {
+//            Log.d(TAG, "else: ${response}")
+        }
+    }
+
     TravelPlanningScreenBody(navController = navController, tpvm)
 }
 
@@ -96,7 +130,7 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
         Modifier.fillMaxSize()
     ) {
         ScreenHeader(navController = navController)
-        ChatContainer(tpvm)
+        ChatContainer(tpvm, navController)
     }
     BottomActionButton(
         descText = tpvm.descriptionQ,
@@ -150,7 +184,8 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
             value = tpvm.numOfUser,
             onValueChange = {
                 Log.d(TAG, "it: $it")
-                tpvm.numOfUser = it },
+                tpvm.numOfUser = it
+            },
             showDialog = tpvm.showDialogNumOfUser,
             setShowDialog = { tpvm.showDialogNumOfUser = it },
             onSaveSelection = { tpvm.userResponse(9) })
@@ -225,7 +260,7 @@ fun ScreenHeader(navController: NavController) {
 }
 
 @Composable
-fun ChatContainer(tpvm: TravelPlanningViewModel) {
+fun ChatContainer(tpvm: TravelPlanningViewModel, navController: NavController) {
     val listState = rememberLazyListState()
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -262,7 +297,10 @@ fun ChatContainer(tpvm: TravelPlanningViewModel) {
                 if (chat.isUser == false) {
                     if (chat.result != null) {
                         Box(Modifier.padding(start = 46.dp, bottom = 8.dp)) {
-                            PlanCard(navigateTo = {})
+                            PlanCard(
+                                navigateTo = { navController.navigate("plan_detail/${tpvm.requestResult.doc_id}") },
+                                item = tpvm.requestResult
+                            )
                         }
                     } else {
                         BotBubble(
@@ -274,7 +312,16 @@ fun ChatContainer(tpvm: TravelPlanningViewModel) {
                     if (chat.actionType!! > 0) {
                         UserActionBubble(
                             text = text,
-                            onPressAction = { tpvm.userResponse(chat.actionType) })
+                            onPressAction = {
+                                if (chat.actionType == 2) {
+                                    tpvm.requestRandom(object : CoroutinesErrorHandler {
+                                        override fun onError(message: String) {
+                                            Log.d("asthoriq login", "onError: $message")
+                                        }
+                                    })
+                                }
+                                tpvm.userResponse(chat.actionType)
+                            })
                     } else {
                         UserBubble(text = text)
                     }

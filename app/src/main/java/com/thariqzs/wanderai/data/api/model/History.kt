@@ -4,16 +4,16 @@ import com.google.gson.annotations.SerializedName
 
 data class History(
     @field:SerializedName("doc_id")
-    val doc_id: String?,
+    val doc_id: String? = null,
 
     @field:SerializedName("city")
-    val city: String?,
+    val city: String? = null,
 
     @field:SerializedName("date_start")
-    val date_start: String?,
+    val date_start: String? = null,
 
     @field:SerializedName("date_end")
-    val date_end: String?,
+    val date_end: String? = null,
 )
 
 data class HistoryDetail(
