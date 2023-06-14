@@ -34,8 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.thariqzs.wanderai.R
+import com.thariqzs.wanderai.data.api.model.AccomodationData
 import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.HistoryDetail
+import com.thariqzs.wanderai.data.api.model.RestaurantData
 import com.thariqzs.wanderai.data.api.model.TourismData
 import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.screens.home.HomeViewModel
@@ -176,7 +178,7 @@ fun PlanDetailScreenBody(data: HistoryDetail) {
                 Text(formattedDateRange ?: "-", style = b1)
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    "\uD83D\uDCDD Deskripsi",
+                    "\uD83D\uDCDD Description",
                     style = h4,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
@@ -229,12 +231,43 @@ fun PlanDetailScreenBody(data: HistoryDetail) {
                             TourismItem(tourism)
                         }
                     }
+                    Spacer(Modifier.height(16.dp))
+                    if (data.data.restaurants_recommendations_each_day != null) {
+                        Text("Restaurant Recommendation", style = sh2, color = BlueNormal)
+                        for (j in 0..((data.data.restaurants_recommendations_each_day[i].size - 1) ?: 0)) {
+                            val restaurant = data.data.restaurants_recommendations_each_day[i][j]
+                            Accordion(header = restaurant.name ?: "") {
+                                RestaurantItem(restaurant)
+                            }
+                        }
+                    }
                 }
-//                Spacer(Modifier.height(16.dp))
-//                Text("Restaurant Recommendation", style = sh2, color = BlueNormal)
-//                Accordion(header = "test") {
-//                    Text("test")
-//                }
+            }
+            Spacer(Modifier.height(16.dp))
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(40.dp))
+                    .background(blueNormalWithOpacity)
+                    .padding(vertical = 12.dp)
+            ) {
+                Text(
+                    "Accomodation",
+                    style = h4,
+                    color = BlueNormal,
+                    modifier = Modifier.align(
+                        Alignment.Center
+                    )
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            if (data.data.accommodations_recommendations != null) {
+                for (i in 0..((data.data.accommodations_recommendations.size - 6) ?: 0)) {
+                    val accomodation = data.data.accommodations_recommendations[i]
+                    Accordion(header = accomodation.name ?: "") {
+                        AccomodationItem(accomodation)
+                    }
+                }
             }
         }
     }
@@ -254,7 +287,7 @@ fun TourismItem(tourism: TourismData) {
         )
     }
     Spacer(Modifier.height(12.dp))
-    Text("Deskripsi", style = sh2)
+    Text("Description", style = sh2)
     Spacer(Modifier.height(4.dp))
     Text(tourism.description ?: "", style = b2)
     Spacer(Modifier.height(12.dp))
@@ -280,15 +313,106 @@ fun TourismItem(tourism: TourismData) {
         }
         Spacer(Modifier.weight(1f))
         Column() {
+            val formattedA = "Rp" + tourism.cost_range_min.toString().replaceFirst("^\\d".toRegex(), "$0.")
+            val formattedB = "Rp" + tourism.cost_range_max.toString().replaceFirst("^\\d".toRegex(), "$0.")
             Text("Cost Range", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(tourism.cost_range_min.toString() ?: "", style = b2)
+            Text("$formattedA - $formattedB" ?: "", style = b2)
         }
     }
     Spacer(Modifier.height(12.dp))
-    Text("Formatted Address", style = sh2)
+    Text("Address", style = sh2)
     Spacer(Modifier.height(4.dp))
     Text(tourism.formatted_address ?: "", style = b2)
+}
+
+@Composable
+fun RestaurantItem(resto: RestaurantData) {
+    Text("Link", style = sh2)
+    Spacer(Modifier.height(4.dp))
+    Text(resto.link_restaurant ?: "", style = b2)
+    Spacer(Modifier.height(12.dp))
+    Row(Modifier.fillMaxWidth()) {
+        Column() {
+            Text("Type", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text(resto.tipe_makanan ?: "", style = b2)
+        }
+        Spacer(Modifier.weight(1f))
+        Column() {
+            Text("Level Price", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text(resto.level_price.toString() ?: "", style = b2)
+        }
+    }
+    Spacer(Modifier.height(12.dp))
+    Row(Modifier.fillMaxWidth()) {
+        Column() {
+            Text("Rating", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text(resto.rating.toString() ?: "", style = b2)
+        }
+        Spacer(Modifier.weight(1f))
+        Column() {
+            val formattedA = "Rp" + resto.cost_range_min.toString().replaceFirst("^\\d".toRegex(), "$0.")
+            val formattedB = "Rp" + resto.cost_range_max.toString().replaceFirst("^\\d".toRegex(), "$0.")
+            Text("Cost Range", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text("$formattedA - $formattedB" ?: "", style = b2)
+        }
+    }
+    Spacer(Modifier.height(12.dp))
+    Text("Estimated Distance to Tourist Place", style = sh2)
+    Spacer(Modifier.height(4.dp))
+    Text((String.format("%.3f", resto.distance_part_of_cluster) + " km") ?: "", style = b2)
+    Spacer(Modifier.height(12.dp))
+    Text("Address", style = sh2)
+    Spacer(Modifier.height(4.dp))
+    Text(resto.formatted_address ?: "", style = b2)
+}
+
+
+@Composable
+fun AccomodationItem(acc: AccomodationData) {
+    Row(Modifier.fillMaxWidth()) {
+        Column() {
+            Text("Rating", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text(acc.rating.toString() ?: "", style = b2)
+        }
+        Spacer(Modifier.weight(1f))
+        Column() {
+            Text("Rating Level", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text(acc.rate_level ?: "", style = b2)
+        }
+    }
+    Spacer(Modifier.height(12.dp))
+    Row(Modifier.fillMaxWidth()) {
+        Column() {
+            Text("Type", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text(acc.acommodation_type ?: "", style = b2)
+        }
+        Spacer(Modifier.weight(1f))
+        Column() {
+            Text("Total Review", style = sh2)
+            Spacer(Modifier.height(4.dp))
+            Text((acc.num_of_reviews.toString() + "review") ?: "", style = b2)
+        }
+    }
+    Spacer(Modifier.height(12.dp))
+    Text("Price per Night", style = sh2)
+    Spacer(Modifier.height(4.dp))
+    Text(("Rp" + acc.price_per_night?.replace(",", ".") + "/kamar/malam") ?: "", style = b2)
+    Spacer(Modifier.height(12.dp))
+    Text("Address", style = sh2)
+    Spacer(Modifier.height(4.dp))
+    Text(acc.formatted_address ?: "", style = b2)
+    Spacer(Modifier.height(12.dp))
+    Text("Average Distance to Tourism Place", style = sh2)
+    Spacer(Modifier.height(4.dp))
+    Text((String.format("%.2f", acc.distance_avg) + " km") ?: "", style = b2)
 }
 
 //@Preview(showBackground = true, widthDp = 360)

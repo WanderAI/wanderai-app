@@ -41,7 +41,7 @@ data class HistoryData(
     val tourism_lists_each_day: List<List<TourismData>>?,
 
     @field:SerializedName("restaurants_recommendations_each_day")
-    val restaurants_recommendations_each_day: List<List<Restaurant>>?,
+    val restaurants_recommendations_each_day: List<List<RestaurantData>>?,
 
     @field:SerializedName("accommodations_recommendations")
     val accommodations_recommendations: List<AccomodationData>?,

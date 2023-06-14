@@ -100,7 +100,7 @@ private fun AccordionHeader(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(title, Modifier.weight(1f), style = sh2, color = Gray600)
+            Text(title, Modifier.weight(1f), style = sh2, color = Gray600, maxLines = 1)
             Surface(shape = RoundedCornerShape(8.dp), color = OrangeNormal) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_chevron_bottom),

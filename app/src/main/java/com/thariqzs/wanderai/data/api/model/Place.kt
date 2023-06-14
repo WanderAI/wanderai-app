@@ -29,17 +29,3 @@ data class Place(
     @field:SerializedName("probability")
     val probability: Float? = null,
 )
-
-data class Restaurant(
-    @field:SerializedName("name")
-    val name: String?,
-
-    @field:SerializedName("jarak_dari_tempat_meter")
-    val jarak_dari_tempat_meter: Int?,
-
-    @field:SerializedName("kategori_harga")
-    val kategori_harga: Int?,
-
-    @field:SerializedName("rating_restaurant")
-    val rating_restaurant: Float?,
-)
