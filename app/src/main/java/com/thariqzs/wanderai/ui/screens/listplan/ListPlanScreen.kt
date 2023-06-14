@@ -1,5 +1,6 @@
 package com.thariqzs.wanderai.ui.screens.listplan
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -31,6 +33,8 @@ import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.data.api.model.History
 import com.thariqzs.wanderai.ui.Routes
+import com.thariqzs.wanderai.ui.screens.home.HomeViewModel
+import com.thariqzs.wanderai.ui.screens.travelplanning.TravelPlanningViewModel
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
 import com.thariqzs.wanderai.ui.theme.OrangeNormal
@@ -39,20 +43,22 @@ import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
 
 @Composable
-fun ListPlanScreen(navController: NavController) {
-    ListPlanScreenBody(navController = navController)
+fun ListPlanScreen(navController: NavController, hvm: HomeViewModel) {
+    ListPlanScreenBody(navController = navController, hvm)
 }
 
 @Composable
-fun ListPlanScreenBody(navController: NavController) {
+fun ListPlanScreenBody(navController: NavController, hvm: HomeViewModel) {
     Column(
         Modifier.fillMaxSize()
     ) {
         ScreenHeader(navController)
         LazyColumn(Modifier.padding(horizontal = 36.dp)) {
-            items(14) {
-                PlanCard(navigateTo = { navController.navigate(Routes.PlanDetail) })
-                Spacer(modifier = Modifier.height(12.dp))
+            if (hvm.history.isNotEmpty()) {
+                items(hvm.history) {
+                    PlanCard(navigateTo = { navController.navigate("plan_detail/${it.doc_id}") }, item = it)
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
         }
     }
@@ -89,6 +95,7 @@ fun PlanCard(navigateTo: () -> Unit, item: History? = History()) {
     ) {
         Row(Modifier.background(Color.White), verticalAlignment = Alignment.CenterVertically) {
             Column() {
+                Log.d("lpsthoriq", "item?.date_start: ${item?.date_start}")
                 Text(item?.city ?: "Not Found", style = sh2)
                 Spacer(modifier = Modifier.height(12.dp))
                 Row() {
@@ -122,9 +129,9 @@ fun PlanCard(navigateTo: () -> Unit, item: History? = History()) {
         }
     }
 }
-
-@Preview(showBackground = true, widthDp = 360)
-@Composable
-fun Preview() {
-    ListPlanScreen(rememberNavController())
-}
+//
+//@Preview(showBackground = true, widthDp = 360)
+//@Composable
+//fun Preview() {
+//    ListPlanScreen(rememberNavController())
+//}

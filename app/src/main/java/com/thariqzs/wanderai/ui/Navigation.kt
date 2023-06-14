@@ -52,6 +52,7 @@ object Routes {
 fun Navigation() {
     val navController = rememberNavController()
     val homeViewModel = hiltViewModel<HomeViewModel>()
+    val travelPlanningViewModel = hiltViewModel<TravelPlanningViewModel>()
 
     NavHost(
         navController = navController,
@@ -70,12 +71,11 @@ fun Navigation() {
         }
 
         composable(Routes.TravelPlan) {
-            val travelPlanningViewModel = hiltViewModel<TravelPlanningViewModel>()
             TravelPlanningScreen(navController = navController, travelPlanningViewModel)
         }
 
         composable(Routes.ListPlan) {
-            ListPlanScreen(navController = navController)
+            ListPlanScreen(navController = navController, homeViewModel)
         }
 
         composable(Routes.PlanDetail) { backStackEntry ->
