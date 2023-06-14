@@ -32,6 +32,15 @@ data class RandomRequest(
     val day_end: String,
 )
 
+data class PreferenceRequest(
+    val query: String,
+    val city: String,
+    val day_start: String,
+    val day_end: String,
+    val n_people: Int,
+    val cost: Int,
+)
+
 interface ApiService {
     @POST("user/login")
     suspend fun loginUser(
@@ -58,5 +67,10 @@ interface ApiService {
     @POST("event/recommendation-random")
     suspend fun requestRandom(
         @Body request: RandomRequest,
+    ): Response<DefaultResponse<History>>
+
+    @POST("event/recommendation-by-payload")
+    suspend fun requestWithPreference(
+        @Body request: PreferenceRequest,
     ): Response<DefaultResponse<History>>
 }

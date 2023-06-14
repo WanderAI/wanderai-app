@@ -65,6 +65,7 @@ import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.BudgetDetail
+import com.thariqzs.wanderai.data.api.model.Chat
 import com.thariqzs.wanderai.data.api.model.CityDetail
 import com.thariqzs.wanderai.data.api.model.History
 import com.thariqzs.wanderai.ui.Routes
@@ -129,7 +130,7 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
     Column(
         Modifier.fillMaxSize()
     ) {
-        ScreenHeader(navController = navController)
+        ScreenHeader(navController = navController) { tpvm.resetChat() }
         ChatContainer(tpvm, navController)
     }
     BottomActionButton(
@@ -193,7 +194,7 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
 }
 
 @Composable
-fun ScreenHeader(navController: NavController) {
+fun ScreenHeader(navController: NavController, resetChat: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -248,10 +249,10 @@ fun ScreenHeader(navController: NavController) {
                     shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(2.dp, BlueNormal),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                    onClick = { }
+                    onClick = { resetChat() }
                 ) {
                     Text(
-                        text = "Save", style = b2, color = BlueNormal
+                        text = "Reset", style = b2, color = BlueNormal
                     )
                 }
             }
@@ -315,6 +316,12 @@ fun ChatContainer(tpvm: TravelPlanningViewModel, navController: NavController) {
                             onPressAction = {
                                 if (chat.actionType == 2) {
                                     tpvm.requestRandom(object : CoroutinesErrorHandler {
+                                        override fun onError(message: String) {
+                                            Log.d("asthoriq login", "onError: $message")
+                                        }
+                                    })
+                                } else if (chat.actionType == 7 || chat.actionType == 8) {
+                                    tpvm.requestWithPreference(object : CoroutinesErrorHandler {
                                         override fun onError(message: String) {
                                             Log.d("asthoriq login", "onError: $message")
                                         }

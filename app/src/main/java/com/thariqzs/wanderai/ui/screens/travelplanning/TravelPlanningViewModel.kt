@@ -8,8 +8,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.core.util.toRange
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.thariqzs.wanderai.data.api.RandomRequest
-import com.thariqzs.wanderai.data.api.RegisterRequest
+import com.thariqzs.wanderai.data.api.PreferenceRequest
 import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.BudgetDetail
 import com.thariqzs.wanderai.data.api.model.Chat
@@ -18,7 +17,6 @@ import com.thariqzs.wanderai.data.api.model.DefaultResponse
 import com.thariqzs.wanderai.data.api.model.History
 import com.thariqzs.wanderai.data.api.model.Recommendation
 import com.thariqzs.wanderai.data.api.model.RequestUserAction
-import com.thariqzs.wanderai.data.api.model.User
 import com.thariqzs.wanderai.data.repository.TravelPlanningRepository
 import com.thariqzs.wanderai.utils.BaseViewModel
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
@@ -81,10 +79,10 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
     var selectedCity by mutableStateOf(listOf<Int>())
 
     val budget: List<BudgetDetail> = listOf(
-        BudgetDetail("Ingin yang paling murah ", 0),
-        BudgetDetail("Harganya biasa-biasa aja", 1),
-        BudgetDetail("Harga mahal bisa diurus ", 2),
-        BudgetDetail("Budget bukanlah batasan :D", 3),
+        BudgetDetail("Ingin yang paling murah ", 1),
+        BudgetDetail("Harganya biasa-biasa aja", 2),
+        BudgetDetail("Harga mahal bisa diurus ", 3),
+        BudgetDetail("Budget bukanlah batasan :D", 4),
     )
     var selectedBudget by mutableStateOf(listOf<Int>())
     val chatDelay: Long = 300
@@ -139,7 +137,16 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
         delay(chatDelay)
         emit(Chat(false, "Yeay travel plan berhasil dibuat!"))
         delay(chatDelay)
-        emit(Chat(false, "", result = Recommendation(requestResult.city.toString(), date = requestResult.date_start)))
+        emit(
+            Chat(
+                false,
+                "",
+                result = Recommendation(
+                    requestResult.city.toString(),
+                    date = requestResult.date_start
+                )
+            )
+        )
     }
 
 
@@ -169,7 +176,6 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
             }
 
             2 -> {
-                printRange()
                 viewModelScope.launch {
                     chatFlowResult.collect {
                         addChat(it)
@@ -326,8 +332,35 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
             travelPlanningRepository.requestRandom(payload)
         }
 
-    fun printRange() {
-        Log.d(TAG, "convertDateRange(selectedRange.toString()): ${convertDateRange(selectedRange.toString())}")
+    fun requestWithPreference(coroutinesErrorHandler: CoroutinesErrorHandler) =
+        baseRequest(_planResponse, coroutinesErrorHandler) {
+            val date = convertDateRange(selectedRange.toString())
+            val payload = PreferenceRequest(
+                descriptionQ,
+                cityList[selectedCity[0]].cityName,
+                date.day_start,
+                date.day_end,
+                numOfUser.toInt(),
+                budget[selectedBudget[0]].id
+            )
+//            val payload = RandomRequest()
+            travelPlanningRepository.requestWithPreference(payload)
+        }
 
+    fun printRange() {
+        Log.d(
+            TAG,
+            "convertDateRange(selectedRange.toString()): ${convertDateRange(selectedRange.toString())}"
+        )
+
+    }
+
+    fun resetChat() {
+        chatList = listOf<Chat>()
+        viewModelScope.launch {
+            chatFlowDate.collect {
+                addChat(it)
+            }
+        }
     }
 }
