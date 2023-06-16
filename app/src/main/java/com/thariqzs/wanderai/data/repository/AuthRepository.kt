@@ -17,4 +17,8 @@ class AuthRepository @Inject constructor(
     fun register(payload: RegisterRequest) = apiRequestFlow {
         apiService.registerUser(payload)
     }
+
+    fun validateToken() = apiRequestFlow {
+        apiService.validateToken()
+    }
 }

@@ -53,6 +53,8 @@ fun Navigation() {
     val navController = rememberNavController()
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val travelPlanningViewModel = hiltViewModel<TravelPlanningViewModel>()
+    val authViewModel = hiltViewModel<AuthViewModel>()
+    val tokenViewModel = hiltViewModel<TokenViewModel>()
 
     NavHost(
         navController = navController,
@@ -60,13 +62,10 @@ fun Navigation() {
 //        modifier = Modifier.background(MaterialTheme.colors.background),
     ) {
         composable(Routes.Auth) {
-            val authViewModel = hiltViewModel<AuthViewModel>()
-            val tokenViewModel = hiltViewModel<TokenViewModel>()
             AuthScreen(navController, authViewModel, tokenViewModel)
         }
 
         composable(Routes.Home) {
-            val tokenViewModel = hiltViewModel<TokenViewModel>()
             HomeScreen(navController = navController, tokenViewModel, homeViewModel)
         }
 
@@ -86,7 +85,6 @@ fun Navigation() {
         }
 
         composable(Routes.Profile) {
-            val tokenViewModel = hiltViewModel<TokenViewModel>()
             ProfileScreen(navController = navController, tokenViewModel)
         }
         

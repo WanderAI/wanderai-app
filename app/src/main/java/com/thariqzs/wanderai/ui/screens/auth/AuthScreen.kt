@@ -1,6 +1,7 @@
 package com.thariqzs.wanderai.ui.screens.auth
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -70,15 +71,16 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
         is ApiResponse.Success -> {
             val data = response.data
             if (tvm.token.value.isNullOrBlank()) {
+                Log.d(TAG, "data.data: ${data.data} ")
                 navController.navigate(Routes.Home)
-                tvm.saveToken(data.data?.token.toString())
+                data.data?.let { tvm.saveToken(it) }
             }
         }
 
         is ApiResponse.Failure -> {
             val errorMessage = response.errorMessage
+            Toast.makeText(context, "${errorMessage}", Toast.LENGTH_SHORT).show()
             Log.d(TAG, "failure: ${errorMessage}")
-            // Handle failure case if needed
         }
 
         is ApiResponse.Loading -> {
@@ -87,7 +89,7 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
         }
 
         else -> {
-            Log.d(TAG, "else: ${response}")
+//            Log.d(TAG, "else: ${response}")
         }
     }
 

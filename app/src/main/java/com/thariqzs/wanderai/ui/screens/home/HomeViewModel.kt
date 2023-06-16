@@ -39,14 +39,15 @@ class HomeViewModel @Inject constructor(private val homeRepository: HomeReposito
 
     var navigationCompleted by mutableStateOf(false)
 
-    init {
-        getPlanHistory(
-            object : CoroutinesErrorHandler {
-                override fun onError(message: String) {
-                    Log.d("hsthoriq senimage", "onError: $message")
-                }
-            })
-    }
+//    init {
+//        Log.d(TAG, "init: ")
+//        getPlanHistory(
+//            object : CoroutinesErrorHandler {
+//                override fun onError(message: String) {
+//                    Log.d("hsthoriq senimage", "onError: $message")
+//                }
+//            })
+//    }
 
     fun printUri() {
         Log.d(TAG, "printUri: ${imageUri.path}")

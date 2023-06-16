@@ -1,6 +1,5 @@
 package com.thariqzs.wanderai.ui.screens.listplan
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,18 +25,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.data.api.model.History
-import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.screens.home.HomeViewModel
-import com.thariqzs.wanderai.ui.screens.travelplanning.TravelPlanningViewModel
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
+import com.thariqzs.wanderai.ui.theme.Gray300
 import com.thariqzs.wanderai.ui.theme.OrangeNormal
+import com.thariqzs.wanderai.ui.theme.a
 import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
@@ -56,7 +53,10 @@ fun ListPlanScreenBody(navController: NavController, hvm: HomeViewModel) {
         LazyColumn(Modifier.padding(horizontal = 36.dp)) {
             if (hvm.history.isNotEmpty()) {
                 items(hvm.history) {
-                    PlanCard(navigateTo = { navController.navigate("plan_detail/${it.doc_id}") }, item = it)
+                    PlanCard(
+                        navigateTo = { navController.navigate("plan_detail/${it.doc_id}") },
+                        item = it
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
@@ -77,7 +77,7 @@ fun ScreenHeader(navController: NavController) {
             tint = BlueNormal,
             modifier = Modifier
                 .size(52.dp)
-                .clickable { navController.navigate(Routes.Home) }
+                .clickable { navController.popBackStack() }
         )
         Text(text = "List Plan", style = h4)
     }
@@ -95,8 +95,10 @@ fun PlanCard(navigateTo: () -> Unit, item: History? = History()) {
     ) {
         Row(Modifier.background(Color.White), verticalAlignment = Alignment.CenterVertically) {
             Column() {
-                Log.d("lpsthoriq", "item?.date_start: ${item?.date_start}")
-                Text(item?.city ?: "Not Found", style = sh2)
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(item?.city ?: "-", style = sh2, modifier = Modifier.padding(end = 4.dp))
+                    Text(("#" + item?.doc_id?.substring(0, 5)) ?: "-", style = a, color = Gray300)
+                }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row() {
                     Icon(

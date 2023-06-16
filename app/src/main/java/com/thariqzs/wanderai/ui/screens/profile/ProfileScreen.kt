@@ -83,14 +83,14 @@ fun ProfileBody(navController: NavController, tvm: TokenViewModel) {
                         .fillMaxWidth()
                         .padding(start = 12.dp)
                 ) {
-                    Text("Rey", style = sh1)
-                    Text("reyganteng@gmail.com", style = b1)
+                    Text(tvm.name ?: "", style = sh1)
+                    Text(tvm.email ?: "", style = b1)
                 }
             }
-            ActionCard(icon = R.drawable.ic_settings, label = "Account Settings")
-            ActionCard(icon = R.drawable.ic_lock, label = "Privacy Policy")
-            ActionCard(icon = R.drawable.ic_sticky_note, label = "Terms and Condition")
-            ActionCard(icon = R.drawable.ic_help, label = "Help Center")
+//            ActionCard(icon = R.drawable.ic_settings, label = "Account Settings")
+//            ActionCard(icon = R.drawable.ic_lock, label = "Privacy Policy")
+//            ActionCard(icon = R.drawable.ic_sticky_note, label = "Terms and Condition")
+//            ActionCard(icon = R.drawable.ic_help, label = "Help Center")
         }
     }
     Box(
@@ -101,6 +101,7 @@ fun ProfileBody(navController: NavController, tvm: TokenViewModel) {
         ActionCard(
             icon = R.drawable.ic_logout, label = "Logout", navigateTo = {
                 tvm.deleteToken()
+
                 navController.navigate(Routes.Auth)
             }, modifier = Modifier
                 .align(

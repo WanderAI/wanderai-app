@@ -123,7 +123,7 @@ fun PlanDetailScreenHeader(navController: NavController, title: String) {
             tint = Color.White,
             modifier = Modifier
                 .size(52.dp)
-                .clickable { navController.navigate(Routes.ListPlan) }
+                .clickable { navController.popBackStack() }
         )
         Text(text = title, style = h4, color = Color.White)
     }
@@ -313,11 +313,9 @@ fun TourismItem(tourism: TourismData) {
         }
         Spacer(Modifier.weight(1f))
         Column() {
-            val formattedA = "Rp" + tourism.cost_range_min.toString().replaceFirst("^\\d".toRegex(), "$0.")
-            val formattedB = "Rp" + tourism.cost_range_max.toString().replaceFirst("^\\d".toRegex(), "$0.")
             Text("Cost Range", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text("$formattedA - $formattedB" ?: "", style = b2)
+            Text(formatAmountRange(tourism.cost_range_min ?: 0, tourism.cost_range_max ?: tourism.cost_range_min ?: 0) ?: "", style = b2)
         }
     }
     Spacer(Modifier.height(12.dp))
@@ -354,11 +352,10 @@ fun RestaurantItem(resto: RestaurantData) {
         }
         Spacer(Modifier.weight(1f))
         Column() {
-            val formattedA = "Rp" + resto.cost_range_min.toString().replaceFirst("^\\d".toRegex(), "$0.")
-            val formattedB = "Rp" + resto.cost_range_max.toString().replaceFirst("^\\d".toRegex(), "$0.")
             Text("Cost Range", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text("$formattedA - $formattedB" ?: "", style = b2)
+            Text(formatAmountRange(resto.cost_range_min ?: 0, resto.cost_range_max ?: resto.cost_range_min ?: 0) ?: "", style = b2)
+
         }
     }
     Spacer(Modifier.height(12.dp))
@@ -398,7 +395,7 @@ fun AccomodationItem(acc: AccomodationData) {
         Column() {
             Text("Total Review", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text((acc.num_of_reviews.toString() + "review") ?: "", style = b2)
+            Text((acc.num_of_reviews.toString() + " reviews") ?: "", style = b2)
         }
     }
     Spacer(Modifier.height(12.dp))

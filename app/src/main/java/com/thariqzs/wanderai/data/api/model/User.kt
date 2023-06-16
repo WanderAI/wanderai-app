@@ -15,3 +15,14 @@ data class User(
     @field:SerializedName("name")
     val name: String?
 )
+
+data class User_ID(
+    @field:SerializedName("user_id")
+    val user_id: String?,
+
+    @field:SerializedName("email")
+    val email: String?,
+
+    @field:SerializedName("name")
+    val name: String?,
+)

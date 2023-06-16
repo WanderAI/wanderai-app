@@ -45,9 +45,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -195,6 +197,8 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
 
 @Composable
 fun ScreenHeader(navController: NavController, resetChat: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     Row(
         Modifier
             .fillMaxWidth()
@@ -245,14 +249,15 @@ fun ScreenHeader(navController: NavController, resetChat: () -> Unit) {
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     modifier = Modifier
-                        .width(92.dp),
+                        .width(88.dp)
+                        ,
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(2.dp, BlueNormal),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+//                    border = BorderStroke(2.dp, BlueNormal),
+                    colors = ButtonDefaults.buttonColors(containerColor = BlueNormal),
                     onClick = { resetChat() }
                 ) {
                     Text(
-                        text = "Reset", style = b2, color = BlueNormal
+                        text = "Reset", style = b2, color = White
                     )
                 }
             }
@@ -262,6 +267,7 @@ fun ScreenHeader(navController: NavController, resetChat: () -> Unit) {
 
 @Composable
 fun ChatContainer(tpvm: TravelPlanningViewModel, navController: NavController) {
+    val context = LocalContext.current
     val listState = rememberLazyListState()
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -303,6 +309,7 @@ fun ChatContainer(tpvm: TravelPlanningViewModel, navController: NavController) {
                                 item = tpvm.requestResult
                             )
                         }
+                        Toast.makeText(context, "Travel Plan berhasil disimpan", Toast.LENGTH_LONG).show()
                     } else {
                         BotBubble(
                             text = text,

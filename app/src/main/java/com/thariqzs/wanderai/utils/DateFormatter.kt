@@ -2,6 +2,7 @@ package com.thariqzs.wanderai.utils
 
 import com.thariqzs.wanderai.data.api.RandomRequest
 import java.text.DecimalFormat
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -21,10 +22,11 @@ fun formatDateRange(dateStart: String, dateEnd: String): String {
 }
 
 fun formatAmountRange(amountMin: Int, amountMax: Int): String {
-    val formatter = DecimalFormat("###,###,###")
-    val formattedMin = formatter.format(amountMin)
-    val formattedMax = formatter.format(amountMax)
-    return "Rp$formattedMin - Rp$formattedMax"
+    val currencyFormat = NumberFormat.getCurrencyInstance(Locale("id", "ID")) as DecimalFormat
+    currencyFormat.maximumFractionDigits = 0
+    val minFormatted = currencyFormat.format(amountMin)
+    val maxFormatted = currencyFormat.format(amountMax)
+    return "$minFormatted - $maxFormatted"
 }
 
 

@@ -37,9 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,7 +52,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.History
@@ -63,6 +59,7 @@ import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
 import com.thariqzs.wanderai.ui.theme.Gray200
+import com.thariqzs.wanderai.ui.theme.Gray300
 import com.thariqzs.wanderai.ui.theme.OrangeLight
 import com.thariqzs.wanderai.ui.theme.OrangeNormal
 import com.thariqzs.wanderai.ui.theme.PinkNormal
@@ -86,15 +83,21 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
 
     val placeRes by hvm._placeResponse.observeAsState()
     val historyRes by hvm._planHistoryResponse.observeAsState()
+    val tokenRes by vm._tokenResponse.observeAsState()
+
+    LaunchedEffect(Unit) {
+        hvm.getPlanHistory(object : CoroutinesErrorHandler {
+            override fun onError(message: String) {
+                Log.d("hsthoriq senimage", "onError: $message")
+            }
+        })
+    }
 
     when (val response = placeRes) {
         is ApiResponse.Success -> {
             val data = response.data.data
-//            Log.d(TAG, "res: ${response}")
-//            Log.d(TAG, "data1212: ${hvm.navigationCompleted}")
             if (data != null && !hvm.navigationCompleted) {
                 hvm.place = data
-//                Log.d(TAG, "data: $navigationCompleted")
                 LaunchedEffect(Unit) {
                     navController.navigate(Routes.PlaceDetail)
                     hvm.navigationCompleted = true
@@ -124,6 +127,29 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
             if (data != null) {
                 hvm.history = data
             }
+        }
+
+        is ApiResponse.Failure -> {
+            val errorMessage = response.errorMessage
+            Toast.makeText(context, "${errorMessage}", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "failure: ${errorMessage}")
+        }
+
+        else -> {
+//            Log.d(TAG, "else: ${response}")
+        }
+    }
+
+    when (val response = tokenRes) {
+        is ApiResponse.Success -> {
+            val data = response.data.data
+            if (data == null) {
+                navController.navigate(Routes.Auth)
+            } else {
+                vm.name = data.name.toString()
+                vm.email = data.email.toString()
+            }
+//            Log.d(TAG, "data: $data")
         }
 
         is ApiResponse.Failure -> {
@@ -282,7 +308,7 @@ fun HomeScreenBody(navController: NavController, vm: TokenViewModel, hvm: HomeVi
             }
     ) {
 
-        Header(name = "Thoriq", navController = navController, vm = vm)
+        Header(name = vm.name ?: "", navController = navController, vm = vm)
         Body(navController, hvm)
         if (hvm.history.size > 0) {
             ListPlan(navController, hvm.history)
@@ -399,6 +425,8 @@ fun FeatureCard(
         modifier = Modifier
             .fillMaxWidth()
             .background(backgroundColor, RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { handleNavigate() }
             .padding(all = 16.dp)
             .height(IntrinsicSize.Min)
     ) {
@@ -437,8 +465,8 @@ fun FeatureCard(
                 modifier = Modifier
                     .size(36.dp)
                     .background(btnColor, RoundedCornerShape(8.dp))
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { handleNavigate() }
+//                    .clip(RoundedCornerShape(8.dp))
+//                    .clickable { handleNavigate() }
 
             ) {
                 Icon(
@@ -491,11 +519,14 @@ fun ListPlan(navController: NavController, list: List<History>) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(list) {
-                val formattedDateRange = it.date_start?.let { it1 -> it.date_end?.let { it2 ->
-                    formatDateRange(it1,
-                        it2
-                    )
-                } }
+                val formattedDateRange = it.date_start?.let { it1 ->
+                    it.date_end?.let { it2 ->
+                        formatDateRange(
+                            it1,
+                            it2
+                        )
+                    }
+                }
 
                 Box(
                     modifier = Modifier
@@ -509,7 +540,10 @@ fun ListPlan(navController: NavController, list: List<History>) {
                         .padding(24.dp)
                 ) {
                     Column() {
-                        Text(it.city?:"", style = sh2)
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(it.city  ?: "-", style = sh2, modifier = Modifier.padding(end = 4.dp))
+                            Text(("#" + it.doc_id?.substring(0, 5)) ?: "-", style = a, color = Gray300)
+                        }
                         Spacer(modifier = Modifier.height(12.dp))
                         Row() {
                             Icon(
@@ -518,7 +552,7 @@ fun ListPlan(navController: NavController, list: List<History>) {
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(formattedDateRange?: "", style = b2)
+                            Text(formattedDateRange ?: "", style = b2)
                         }
                     }
                 }
@@ -535,6 +569,8 @@ fun TakeImageCard(icon: Int, text: String, onPressButton: () -> Unit) {
         Modifier
             .border(1.dp, blueLightWithOpacity, RoundedCornerShape(24.dp))
             .background(Color.White, RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(24.dp))
+            .clickable { onPressButton() }
             .padding(24.dp)
     ) {
         Row(Modifier.background(Color.White), verticalAlignment = Alignment.CenterVertically) {
@@ -553,9 +589,6 @@ fun TakeImageCard(icon: Int, text: String, onPressButton: () -> Unit) {
                 modifier = Modifier
                     .size(36.dp)
                     .background(OrangeNormal, RoundedCornerShape(8.dp))
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { onPressButton() }
-
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_chevron_right),

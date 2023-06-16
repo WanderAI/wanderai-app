@@ -5,6 +5,7 @@ import com.thariqzs.wanderai.data.api.model.History
 import com.thariqzs.wanderai.data.api.model.HistoryDetail
 import com.thariqzs.wanderai.data.api.model.Place
 import com.thariqzs.wanderai.data.api.model.User
+import com.thariqzs.wanderai.data.api.model.User_ID
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -73,4 +74,8 @@ interface ApiService {
     suspend fun requestWithPreference(
         @Body request: PreferenceRequest,
     ): Response<DefaultResponse<History>>
+
+    @POST("user")
+    suspend fun validateToken(
+    ): Response<DefaultResponse<User_ID>>
 }
