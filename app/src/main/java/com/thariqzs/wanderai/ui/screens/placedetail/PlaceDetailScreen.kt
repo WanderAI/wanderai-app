@@ -114,7 +114,7 @@ fun PlaceDetailBody(place: Place, imgUri: Uri) {
         Row(
             Modifier
                 .fillMaxWidth()
-                .background(BlueSky, RoundedCornerShape(24.dp))
+                .background(Color.White, RoundedCornerShape(24.dp))
                 .padding(4.dp)
                 .height(200.dp)
                 , verticalAlignment = Alignment.CenterVertically

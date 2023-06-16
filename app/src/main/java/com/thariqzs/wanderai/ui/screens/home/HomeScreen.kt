@@ -212,58 +212,66 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
             if (imageUri != null) {
                 hvm.imageUri = imageUri
                 hvm.navigationCompleted = false
+                try {
+                    val inputStream = context.contentResolver.openInputStream(imageUri)
+                    val file = File.createTempFile("ml-scan", ".jpeg", context.cacheDir)
+                    val outputStream = FileOutputStream(file)
 
-                val inputStream = context.contentResolver.openInputStream(imageUri)
-                val file = File.createTempFile("ml-scan", ".jpeg", context.cacheDir)
-                val outputStream = FileOutputStream(file)
-
-                inputStream.use { input ->
-                    outputStream.use { output ->
-                        input?.copyTo(output)
-                    }
-                }
-
-                hvm.testfile = file
-                if (hvm.testfile.exists()) {
-                    hvm.sendImage(object : CoroutinesErrorHandler {
-                        override fun onError(message: String) {
-                            Log.d("hsthoriq senimage", "onError: $message")
+                    inputStream.use { input ->
+                        outputStream.use { output ->
+                            input?.copyTo(output)
                         }
-                    })
+                    }
 
-                    hvm.showDialog = false
-                } else {
-                    Log.d("hsthoriq senimage", "Gaada bang")
+                    hvm.testfile = file
+                    if (hvm.testfile.exists()) {
+                        hvm.sendImage(object : CoroutinesErrorHandler {
+                            override fun onError(message: String) {
+                                Log.d("hsthoriq senimage", "onError: $message")
+                            }
+                        })
+
+                        hvm.showDialog = false
+                    } else {
+                        Log.d("hsthoriq senimage", "Gaada bang")
+                    }
+                } catch (e: Exception) {
+                    Log.d(TAG, "error: $e")
                 }
             }
         }
 
         val cameraLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-                hvm.imageUri = uri
-                hvm.navigationCompleted = false
+                if (uri != null) {
+                    hvm.imageUri = uri
+                    hvm.navigationCompleted = false
+                    try {
+                        val inputStream = context.contentResolver.openInputStream(uri)
+                        val file = File.createTempFile("ml-scan", ".jpeg", context.cacheDir)
+                        val outputStream = FileOutputStream(file)
 
-                val inputStream = context.contentResolver.openInputStream(uri)
-                val file = File.createTempFile("ml-scan", ".jpeg", context.cacheDir)
-                val outputStream = FileOutputStream(file)
-
-                inputStream.use { input ->
-                    outputStream.use { output ->
-                        input?.copyTo(output)
-                    }
-                }
-
-                hvm.testfile = file
-                if (hvm.testfile.exists()) {
-                    hvm.sendImage(object : CoroutinesErrorHandler {
-                        override fun onError(message: String) {
-                            Log.d("hsthoriq senimage", "onError: $message")
+                        inputStream.use { input ->
+                            outputStream.use { output ->
+                                input?.copyTo(output)
+                            }
                         }
-                    })
 
-                    hvm.showDialog = false
-                } else {
-                    Log.d("hsthoriq senimage", "Gaada bang")
+                        hvm.testfile = file
+                        if (hvm.testfile.exists()) {
+                            hvm.sendImage(object : CoroutinesErrorHandler {
+                                override fun onError(message: String) {
+                                    Log.d("hsthoriq senimage", "onError: $message")
+                                }
+                            })
+
+                            hvm.showDialog = false
+                        } else {
+                            Log.d("hsthoriq senimage", "Gaada bang")
+                        }
+                    } catch (e: Exception) {
+                        Log.d(TAG, "error: $e ")
+                    }
                 }
             }
 
