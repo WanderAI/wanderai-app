@@ -139,7 +139,16 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
         descText = tpvm.descriptionQ,
         onChangeText = { text -> tpvm.descriptionQ = text },
         focusRequester = tpvm.focusRequester,
-        onSendChat = { if (tpvm.descriptionQ.isNotEmpty()) tpvm.userResponse(8) },
+        onSendChat = {
+            if (tpvm.chatEnabled) {
+                tpvm.requestWithPreference(object : CoroutinesErrorHandler {
+                    override fun onError(message: String) {
+                        Log.d("tpsthoriq reqpref", "onError: $message")
+                    }
+                })
+                tpvm.userResponse(8)
+            }
+        },
         enabled = tpvm.chatEnabled
     )
 
@@ -353,7 +362,7 @@ fun ChatContainer(tpvm: TravelPlanningViewModel, navController: NavController) {
                                             Log.d("tpsthoriq reqrndm", "onError: $message")
                                         }
                                     })
-                                } else if (chat.actionType == 7 || chat.actionType == 8) {
+                                } else if (chat.actionType == 7) {
                                     Log.d("tpsthoriq", "ChatContainer: tsetse")
                                     tpvm.requestWithPreference(object : CoroutinesErrorHandler {
                                         override fun onError(message: String) {
