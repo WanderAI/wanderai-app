@@ -34,6 +34,9 @@ data class HistoryDetail(
 
     @field:SerializedName("data")
     val data: HistoryData? = null,
+
+    @field:SerializedName("description")
+    val description: String? = null
 )
 
 data class HistoryData(

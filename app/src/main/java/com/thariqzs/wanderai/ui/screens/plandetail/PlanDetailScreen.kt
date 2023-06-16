@@ -45,7 +45,6 @@ import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.HistoryDetail
 import com.thariqzs.wanderai.data.api.model.RestaurantData
 import com.thariqzs.wanderai.data.api.model.TourismData
-import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.screens.home.HomeViewModel
 import com.thariqzs.wanderai.ui.screens.shared.components.Accordion
 import com.thariqzs.wanderai.ui.theme.BlueNormal
@@ -64,7 +63,6 @@ fun PlanDetailScreen(navController: NavController, docId: String, hvm: HomeViewM
     val historyDetailRes by hvm._historyDetailResponse.observeAsState()
 
     LaunchedEffect(docId) {
-        Log.d(TAG, "PlanDetailScreen: $docId")
         if (docId != null) {
             hvm.getHistoryDetail(object : CoroutinesErrorHandler {
                 override fun onError(message: String) {
@@ -77,7 +75,7 @@ fun PlanDetailScreen(navController: NavController, docId: String, hvm: HomeViewM
     when (val response = historyDetailRes) {
         is ApiResponse.Success -> {
             val data = response.data.data
-//            Log.d(TAG, "res: ${response}")
+//            Log.d(TAG, "res: ${response.data.data.description}")
 //            Log.d(TAG, "data1212: ${hvm.navigationCompleted}")
             if (data != null && !hvm.navigationCompleted) {
                 hvm.historyDetail = data
@@ -188,7 +186,7 @@ fun PlanDetailScreenBody(data: HistoryDetail) {
                     style = h4,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
-                Text("-", style = b1)
+                Text(data.description ?: "-", style = b1)
                 Spacer(modifier = Modifier.height(12.dp))
                 Text("\uD83D\uDCB5 Budget", style = h4, modifier = Modifier.padding(bottom = 4.dp))
                 Text(formattedBudget ?: "-", style = b1)
@@ -226,13 +224,8 @@ fun PlanDetailScreenBody(data: HistoryDetail) {
                     }
                     Spacer(Modifier.height(16.dp))
                     Text("Tourism List", style = sh2, color = BlueNormal)
-                    Log.d(
-                        TAG,
-                        "data.data.tourism_lists_each_day[i].size: ${data.data.tourism_lists_each_day[i].size}"
-                    )
                     for (j in 0..((data.data.tourism_lists_each_day[i].size - 1) ?: 0)) {
                         val tourism = data.data.tourism_lists_each_day[i][j]
-                        Log.d(TAG, "tourism: ${tourism}")
                         Accordion(header = tourism.name ?: "") {
                             TourismItem(tourism)
                         }
@@ -240,7 +233,8 @@ fun PlanDetailScreenBody(data: HistoryDetail) {
                     Spacer(Modifier.height(16.dp))
                     if (data.data.restaurants_recommendations_each_day != null) {
                         Text("Restaurant Recommendation", style = sh2, color = BlueNormal)
-                        for (j in 0..((data.data.restaurants_recommendations_each_day[i].size - 1) ?: 0)) {
+                        for (j in 0..((data.data.restaurants_recommendations_each_day[i].size - 1)
+                            ?: 0)) {
                             val restaurant = data.data.restaurants_recommendations_each_day[i][j]
                             Accordion(header = restaurant.name ?: "") {
                                 RestaurantItem(restaurant)
@@ -321,7 +315,12 @@ fun TourismItem(tourism: TourismData) {
         Column() {
             Text("Cost Range", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(formatAmountRange(tourism.cost_range_min ?: 0, tourism.cost_range_max ?: tourism.cost_range_min ?: 0) ?: "-", style = b2)
+            Text(
+                formatAmountRange(
+                    tourism.cost_range_min ?: 0,
+                    tourism.cost_range_max ?: tourism.cost_range_min ?: 0
+                ) ?: "-", style = b2
+            )
         }
     }
     Spacer(Modifier.height(12.dp))
@@ -333,7 +332,12 @@ fun TourismItem(tourism: TourismData) {
 @Composable
 fun RestaurantItem(resto: RestaurantData) {
     val annotatedString = buildAnnotatedString {
-        withStyle(style = SpanStyle(color = Color.Blue, textDecoration = TextDecoration.Underline)) {
+        withStyle(
+            style = SpanStyle(
+                color = Color.Blue,
+                textDecoration = TextDecoration.Underline
+            )
+        ) {
             append(resto.link_restaurant)
             addStringAnnotation(
                 tag = "URL",
@@ -349,9 +353,13 @@ fun RestaurantItem(resto: RestaurantData) {
     Text("Link", style = sh2)
     Spacer(Modifier.height(4.dp))
     if (resto.link_restaurant?.isNotEmpty() == true) {
-        ClickableText(text = annotatedString, onClick = { urlHandler.openUri(resto.link_restaurant) }, style = b2)
+        ClickableText(
+            text = annotatedString,
+            onClick = { urlHandler.openUri(resto.link_restaurant) },
+            style = b2
+        )
     } else {
-        Text( "-", style = b2)
+        Text("-", style = b2)
     }
     Spacer(Modifier.height(12.dp))
     Row(Modifier.fillMaxWidth()) {
@@ -378,7 +386,12 @@ fun RestaurantItem(resto: RestaurantData) {
         Column() {
             Text("Cost Range", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(formatAmountRange(resto.cost_range_min ?: 0, resto.cost_range_max ?: resto.cost_range_min ?: 0) ?: "-", style = b2)
+            Text(
+                formatAmountRange(
+                    resto.cost_range_min ?: 0,
+                    resto.cost_range_max ?: resto.cost_range_min ?: 0
+                ) ?: "-", style = b2
+            )
 
         }
     }

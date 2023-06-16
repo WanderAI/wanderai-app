@@ -52,7 +52,7 @@ class AuthViewModel @Inject constructor(private val authRepository: AuthReposito
             ""
         }
 
-        passErr = if (password.isNotEmpty() && !validatePassword(password)) {
+        passErr = if (password.isNotEmpty() && password.length < 8) {
             "Password harus memiliki setidaknya 8 karakter"
         } else {
             ""
