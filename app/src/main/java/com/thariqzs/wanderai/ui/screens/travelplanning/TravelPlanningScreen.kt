@@ -197,17 +197,11 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
         CustomDialogNumOfPerson(
             value = tpvm.numOfUser,
             onValueChange = {
-                Log.d(TAG, "it: $it")
                 if (it.isEmpty()) tpvm.numOfUser = it
                 else {
                     val num = extractNumber(it)
                     if (num != null) {
-                        Log.d(TAG, "num: $num")
-                        Log.d(TAG, "num: $num")
-                        tpvm.numOfUser = num.toString()
-
-//                    Toast.makeText(context, "Hanya angka!", Toast.LENGTH_SHORT).show()
-
+                        tpvm.numOfUser = num.toInt().toString().replace(" ", "")
                     }
                 }
             },
@@ -333,15 +327,15 @@ fun ChatContainer(tpvm: TravelPlanningViewModel, navController: NavController) {
                 val text = chat.text
 
                 if (chat.isUser == false) {
-                    if (chat.result != null) {
+                    if (chat.result?.placeName != null) {
                         Box(Modifier.padding(start = 46.dp, bottom = 8.dp)) {
                             PlanCard(
                                 navigateTo = { navController.navigate("plan_detail/${tpvm.requestResult.doc_id}") },
                                 item = tpvm.requestResult
                             )
                         }
-                        Toast.makeText(context, "Travel Plan berhasil disimpan", Toast.LENGTH_LONG)
-                            .show()
+//                        Toast.makeText(context, "Travel Plan berhasil disimpan", Toast.LENGTH_LONG)
+//                            .show()
                     } else {
                         BotBubble(
                             text = text,

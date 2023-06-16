@@ -147,6 +147,7 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
                 )
             )
         )
+        delay(2000)
     }
 
 
@@ -334,15 +335,15 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
 
     fun requestWithPreference(coroutinesErrorHandler: CoroutinesErrorHandler) =
         baseRequest(_planResponse, coroutinesErrorHandler) {
-            Log.d(TAG, "request: tests")
+            val numOfUser = numOfUser.toInt()
             val date = convertDateRange(selectedRange.toString())
             val payload = PreferenceRequest(
                 descriptionQ,
                 cityList[selectedCity[0]].cityName,
                 date.day_start,
                 date.day_end,
-                numOfUser.toInt(),
-                budget[selectedBudget[0]].id
+                numOfUser,
+                budget[selectedBudget[0]-1].id
             )
             Log.d(TAG, "payload: $payload")
             travelPlanningRepository.requestWithPreference(payload)
@@ -363,6 +364,8 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
         selectedRange = default.toRange()
         descriptionQ = ""
         chatList = listOf<Chat>()
+        requestResult = History()
+
         viewModelScope.launch {
             chatFlowDate.collect {
                 addChat(it)

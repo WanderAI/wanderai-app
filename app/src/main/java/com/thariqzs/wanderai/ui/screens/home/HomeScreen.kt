@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -95,8 +96,10 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
 
     val coroutineScope = rememberCoroutineScope()
     val clickCount = remember { mutableStateOf(0) }
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
+        Log.d(TAG, "HomeScreen: refetch")
         hvm.getPlanHistory(object : CoroutinesErrorHandler {
             override fun onError(message: String) {
                 Log.d("hsthoriq senimage", "onError: $message")

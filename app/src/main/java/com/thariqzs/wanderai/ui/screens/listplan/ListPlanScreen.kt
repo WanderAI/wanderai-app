@@ -91,6 +91,8 @@ fun PlanCard(navigateTo: () -> Unit, item: History? = History()) {
         Modifier
             .border(1.dp, blueLightWithOpacity, RoundedCornerShape(24.dp))
             .background(Color.White, RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(24.dp))
+            .clickable { navigateTo() }
             .padding(24.dp)
     ) {
         Row(Modifier.background(Color.White), verticalAlignment = Alignment.CenterVertically) {
@@ -115,9 +117,6 @@ fun PlanCard(navigateTo: () -> Unit, item: History? = History()) {
                 modifier = Modifier
                     .size(36.dp)
                     .background(OrangeNormal, RoundedCornerShape(8.dp))
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { navigateTo() }
-
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_chevron_right),
