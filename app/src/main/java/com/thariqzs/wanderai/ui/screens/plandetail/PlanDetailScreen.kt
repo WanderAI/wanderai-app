@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -29,7 +30,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -277,7 +283,7 @@ fun PlanDetailScreenBody(data: HistoryDetail) {
 fun TourismItem(tourism: TourismData) {
     if (tourism.image_link != null) {
         AsyncImage(
-            model = (tourism.image_link ?: ""),
+            model = (tourism.image_link ?: "-"),
             contentDescription = null,
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
@@ -289,19 +295,19 @@ fun TourismItem(tourism: TourismData) {
     Spacer(Modifier.height(12.dp))
     Text("Description", style = sh2)
     Spacer(Modifier.height(4.dp))
-    Text(tourism.description ?: "", style = b2)
+    Text(tourism.description ?: "-", style = b2)
     Spacer(Modifier.height(12.dp))
     Row(Modifier.fillMaxWidth()) {
         Column() {
             Text("Category", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(tourism.category ?: "", style = b2)
+            Text(tourism.category ?: "-", style = b2)
         }
         Spacer(Modifier.weight(1f))
         Column() {
             Text("City", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(tourism.city ?: "", style = b2)
+            Text(tourism.city ?: "-", style = b2)
         }
     }
     Spacer(Modifier.height(12.dp))
@@ -309,38 +315,56 @@ fun TourismItem(tourism: TourismData) {
         Column() {
             Text("Rating", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(tourism.rating.toString() ?: "", style = b2)
+            Text(tourism.rating.toString() ?: "-", style = b2)
         }
         Spacer(Modifier.weight(1f))
         Column() {
             Text("Cost Range", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(formatAmountRange(tourism.cost_range_min ?: 0, tourism.cost_range_max ?: tourism.cost_range_min ?: 0) ?: "", style = b2)
+            Text(formatAmountRange(tourism.cost_range_min ?: 0, tourism.cost_range_max ?: tourism.cost_range_min ?: 0) ?: "-", style = b2)
         }
     }
     Spacer(Modifier.height(12.dp))
     Text("Address", style = sh2)
     Spacer(Modifier.height(4.dp))
-    Text(tourism.formatted_address ?: "", style = b2)
+    Text(tourism.formatted_address ?: "-", style = b2)
 }
 
 @Composable
 fun RestaurantItem(resto: RestaurantData) {
+    val annotatedString = buildAnnotatedString {
+        withStyle(style = SpanStyle(color = Color.Blue, textDecoration = TextDecoration.Underline)) {
+            append(resto.link_restaurant)
+            addStringAnnotation(
+                tag = "URL",
+                annotation = resto.link_restaurant ?: "-",
+                start = 0,
+                end = length
+            )
+        }
+    }
+
+    val urlHandler = LocalUriHandler.current
+
     Text("Link", style = sh2)
     Spacer(Modifier.height(4.dp))
-    Text(resto.link_restaurant ?: "", style = b2)
+    if (resto.link_restaurant?.isNotEmpty() == true) {
+        ClickableText(text = annotatedString, onClick = { urlHandler.openUri(resto.link_restaurant) }, style = b2)
+    } else {
+        Text( "-", style = b2)
+    }
     Spacer(Modifier.height(12.dp))
     Row(Modifier.fillMaxWidth()) {
         Column() {
             Text("Type", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(resto.tipe_makanan ?: "", style = b2)
+            Text(resto.tipe_makanan ?: "-", style = b2)
         }
         Spacer(Modifier.weight(1f))
         Column() {
             Text("Level Price", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(resto.level_price.toString() ?: "", style = b2)
+            Text(resto.level_price.toString() ?: "-", style = b2)
         }
     }
     Spacer(Modifier.height(12.dp))
@@ -348,24 +372,24 @@ fun RestaurantItem(resto: RestaurantData) {
         Column() {
             Text("Rating", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(resto.rating.toString() ?: "", style = b2)
+            Text(resto.rating.toString() ?: "-", style = b2)
         }
         Spacer(Modifier.weight(1f))
         Column() {
             Text("Cost Range", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(formatAmountRange(resto.cost_range_min ?: 0, resto.cost_range_max ?: resto.cost_range_min ?: 0) ?: "", style = b2)
+            Text(formatAmountRange(resto.cost_range_min ?: 0, resto.cost_range_max ?: resto.cost_range_min ?: 0) ?: "-", style = b2)
 
         }
     }
     Spacer(Modifier.height(12.dp))
     Text("Estimated Distance to Tourist Place", style = sh2)
     Spacer(Modifier.height(4.dp))
-    Text((String.format("%.3f", resto.distance_part_of_cluster) + " km") ?: "", style = b2)
+    Text((String.format("%.3f", resto.distance_part_of_cluster) + " km") ?: "-", style = b2)
     Spacer(Modifier.height(12.dp))
     Text("Address", style = sh2)
     Spacer(Modifier.height(4.dp))
-    Text(resto.formatted_address ?: "", style = b2)
+    Text(resto.formatted_address ?: "-", style = b2)
 }
 
 
@@ -375,13 +399,13 @@ fun AccomodationItem(acc: AccomodationData) {
         Column() {
             Text("Rating", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(acc.rating.toString() ?: "", style = b2)
+            Text(acc.rating.toString() ?: "-", style = b2)
         }
         Spacer(Modifier.weight(1f))
         Column() {
             Text("Rating Level", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(acc.rate_level ?: "", style = b2)
+            Text(acc.rate_level ?: "-", style = b2)
         }
     }
     Spacer(Modifier.height(12.dp))
@@ -389,27 +413,27 @@ fun AccomodationItem(acc: AccomodationData) {
         Column() {
             Text("Type", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text(acc.acommodation_type ?: "", style = b2)
+            Text(acc.acommodation_type ?: "-", style = b2)
         }
         Spacer(Modifier.weight(1f))
         Column() {
             Text("Total Review", style = sh2)
             Spacer(Modifier.height(4.dp))
-            Text((acc.num_of_reviews.toString() + " reviews") ?: "", style = b2)
+            Text((acc.num_of_reviews.toString() + " reviews") ?: "-", style = b2)
         }
     }
     Spacer(Modifier.height(12.dp))
     Text("Price per Night", style = sh2)
     Spacer(Modifier.height(4.dp))
-    Text(("Rp" + acc.price_per_night?.replace(",", ".") + "/kamar/malam") ?: "", style = b2)
+    Text(("Rp" + acc.price_per_night?.replace(",", ".") + "/kamar/malam") ?: "-", style = b2)
     Spacer(Modifier.height(12.dp))
     Text("Address", style = sh2)
     Spacer(Modifier.height(4.dp))
-    Text(acc.formatted_address ?: "", style = b2)
+    Text(acc.formatted_address ?: "-", style = b2)
     Spacer(Modifier.height(12.dp))
     Text("Average Distance to Tourism Place", style = sh2)
     Spacer(Modifier.height(4.dp))
-    Text((String.format("%.2f", acc.distance_avg) + " km") ?: "", style = b2)
+    Text((String.format("%.2f", acc.distance_avg) + " km") ?: "-", style = b2)
 }
 
 //@Preview(showBackground = true, widthDp = 360)
