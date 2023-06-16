@@ -45,7 +45,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
@@ -67,7 +66,6 @@ import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 import com.thariqzs.wanderai.R
 import com.thariqzs.wanderai.data.api.model.ApiResponse
 import com.thariqzs.wanderai.data.api.model.BudgetDetail
-import com.thariqzs.wanderai.data.api.model.Chat
 import com.thariqzs.wanderai.data.api.model.CityDetail
 import com.thariqzs.wanderai.data.api.model.History
 import com.thariqzs.wanderai.ui.Routes
@@ -89,6 +87,7 @@ import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh2
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
+import com.thariqzs.wanderai.utils.extractNumber
 import java.time.LocalDate
 
 @Composable
@@ -128,6 +127,7 @@ fun TravelPlanningScreen(navController: NavController, tpvm: TravelPlanningViewM
 fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningViewModel) {
     val TAG = "tpsthoriq"
     var q by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     Column(
         Modifier.fillMaxSize()
@@ -139,7 +139,7 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
         descText = tpvm.descriptionQ,
         onChangeText = { text -> tpvm.descriptionQ = text },
         focusRequester = tpvm.focusRequester,
-        onSendChat = { tpvm.userResponse(8) },
+        onSendChat = { if (tpvm.descriptionQ.isNotEmpty()) tpvm.userResponse(8) },
         enabled = tpvm.chatEnabled
     )
 
@@ -154,7 +154,12 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
             cityList = tpvm.cityList,
             onClickItem = { id -> tpvm.setCityActive(id) },
             selectedCityList = tpvm.selectedCity,
-            onSaveSelection = { tpvm.userResponse(3) })
+            onSaveSelection = {
+                if (tpvm.selectedCity.isNotEmpty()) tpvm.userResponse(3)
+                else {
+                    Toast.makeText(context, "Silahkan pilih destinasi", Toast.LENGTH_LONG).show()
+                }
+            })
     }
 
     if (tpvm.showDialogDate) {
@@ -179,7 +184,13 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
             budgetList = tpvm.budget,
             onClickItem = { id -> tpvm.setBudgetActive(id) },
             selectedBudgetList = tpvm.selectedBudget,
-            onSaveSelection = { tpvm.userResponse(5) })
+            onSaveSelection = {
+                if (tpvm.selectedBudget.isNotEmpty()) tpvm.userResponse(5)
+                else {
+                    Toast.makeText(context, "Silahkan pilih preferensi budget", Toast.LENGTH_LONG)
+                        .show()
+                }
+            })
     }
 
     if (tpvm.showDialogNumOfUser) {
@@ -187,11 +198,32 @@ fun TravelPlanningScreenBody(navController: NavController, tpvm: TravelPlanningV
             value = tpvm.numOfUser,
             onValueChange = {
                 Log.d(TAG, "it: $it")
-                tpvm.numOfUser = it
+                if (it.isEmpty()) tpvm.numOfUser = it
+                else {
+                    val num = extractNumber(it)
+                    if (num != null) {
+                        Log.d(TAG, "num: $num")
+                        Log.d(TAG, "num: $num")
+                        tpvm.numOfUser = num.toString()
+
+//                    Toast.makeText(context, "Hanya angka!", Toast.LENGTH_SHORT).show()
+
+                    }
+                }
             },
             showDialog = tpvm.showDialogNumOfUser,
             setShowDialog = { tpvm.showDialogNumOfUser = it },
-            onSaveSelection = { tpvm.userResponse(9) })
+            onSaveSelection = {
+                if (tpvm.numOfUser.isNotEmpty()) {
+                    val num = extractNumber(tpvm.numOfUser)
+                    if (num != null) {
+                        if (num > 0) tpvm.userResponse(9)
+                    }
+                } else {
+                    Toast.makeText(context, "Silahkan ketik jumlah orang", Toast.LENGTH_LONG).show()
+                }
+            }
+        )
     }
 }
 
@@ -249,8 +281,7 @@ fun ScreenHeader(navController: NavController, resetChat: () -> Unit) {
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     modifier = Modifier
-                        .width(88.dp)
-                        ,
+                        .width(88.dp),
                     shape = RoundedCornerShape(16.dp),
 //                    border = BorderStroke(2.dp, BlueNormal),
                     colors = ButtonDefaults.buttonColors(containerColor = BlueNormal),
@@ -309,7 +340,8 @@ fun ChatContainer(tpvm: TravelPlanningViewModel, navController: NavController) {
                                 item = tpvm.requestResult
                             )
                         }
-                        Toast.makeText(context, "Travel Plan berhasil disimpan", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Travel Plan berhasil disimpan", Toast.LENGTH_LONG)
+                            .show()
                     } else {
                         BotBubble(
                             text = text,
@@ -324,13 +356,14 @@ fun ChatContainer(tpvm: TravelPlanningViewModel, navController: NavController) {
                                 if (chat.actionType == 2) {
                                     tpvm.requestRandom(object : CoroutinesErrorHandler {
                                         override fun onError(message: String) {
-                                            Log.d("asthoriq login", "onError: $message")
+                                            Log.d("tpsthoriq reqrndm", "onError: $message")
                                         }
                                     })
                                 } else if (chat.actionType == 7 || chat.actionType == 8) {
+                                    Log.d("tpsthoriq", "ChatContainer: tsetse")
                                     tpvm.requestWithPreference(object : CoroutinesErrorHandler {
                                         override fun onError(message: String) {
-                                            Log.d("asthoriq login", "onError: $message")
+                                            Log.d("tpsthoriq reqpref", "onError: $message")
                                         }
                                     })
                                 }
@@ -426,13 +459,23 @@ fun UserActionBubble(text: String, onPressAction: () -> Unit) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
         Card(
             Modifier
-                .border(BorderStroke(1.dp, BlueNormal), RoundedCornerShape(24.dp))
                 .clip(RoundedCornerShape(24.dp))
+                .border(BorderStroke(1.dp, BlueNormal), RoundedCornerShape(24.dp))
                 .background(Color.White)
-                .clickable { onPressAction() }
-                .padding(16.dp),
+                .clickable { onPressAction() },
         ) {
-            Text(text, style = b2, color = BlueNormal, modifier = Modifier.background(Color.White))
+            Box(
+                Modifier
+                    .background(Color.White)
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text,
+                    style = b2,
+                    color = BlueNormal,
+                    modifier = Modifier.background(Color.White)
+                )
+            }
         }
     }
     Spacer(modifier = Modifier.height(8.dp))
@@ -493,14 +536,14 @@ fun CustomDialog(
     }) {
         Surface(
             Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(vertical = 100.dp),
             shape = RoundedCornerShape(16.dp),
             color = Color.White,
         ) {
             Column(
                 Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .padding(20.dp)
             ) {
                 Row(
@@ -523,8 +566,6 @@ fun CustomDialog(
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 LazyColumn(
-                    Modifier
-                        .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     items(cityList) {
@@ -667,14 +708,14 @@ fun CustomDialogBudget(
     }) {
         Surface(
             Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(vertical = 100.dp),
             shape = RoundedCornerShape(16.dp),
             color = Color.White,
         ) {
             Column(
                 Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .padding(20.dp)
             ) {
                 Row(
@@ -696,8 +737,6 @@ fun CustomDialogBudget(
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 LazyColumn(
-                    Modifier
-                        .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     items(budgetList) {

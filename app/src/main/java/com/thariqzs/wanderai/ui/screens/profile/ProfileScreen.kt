@@ -29,6 +29,7 @@ import com.thariqzs.wanderai.ui.Routes
 import com.thariqzs.wanderai.ui.theme.BlueLight
 import com.thariqzs.wanderai.ui.theme.BlueNormal
 import com.thariqzs.wanderai.ui.theme.Gray200
+import com.thariqzs.wanderai.ui.theme.Gray300
 import com.thariqzs.wanderai.ui.theme.Gray500
 import com.thariqzs.wanderai.ui.theme.Gray600
 import com.thariqzs.wanderai.ui.theme.OrangeNormal
@@ -87,6 +88,7 @@ fun ProfileBody(navController: NavController, tvm: TokenViewModel) {
                     Text(tvm.email ?: "", style = b1)
                 }
             }
+            Text("Wander AI - v1.0.0", style = b2, color = Gray500, modifier =  Modifier.padding(start = 12.dp, top = 12.dp))
 //            ActionCard(icon = R.drawable.ic_settings, label = "Account Settings")
 //            ActionCard(icon = R.drawable.ic_lock, label = "Privacy Policy")
 //            ActionCard(icon = R.drawable.ic_sticky_note, label = "Terms and Condition")

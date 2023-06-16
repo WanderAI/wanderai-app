@@ -107,6 +107,8 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
 
 @Composable
 fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
+    val context = LocalContext.current
+
     if (viewModel.currTab == "Login") {
         viewModel.validateInputLogin()
     } else if (viewModel.currTab == "Sign Up") {
@@ -175,7 +177,7 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                         isPassword = true,
                         errMsg = viewModel.passErr,
                         rightLabel = (if (viewModel.currTab == "Login") {
-                            "Lupa Password?"
+                            ""
                         } else {
                             ""
                         }).toString(),
@@ -200,13 +202,15 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                     onClick = {
                         if (viewModel.currTab == "Login") {
 //                            if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank() && viewModel.email.isNotBlank() && viewModel.password.isNotBlank()) {
-                            if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank()) {
-
+                            if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank() && viewModel.email.isNotBlank() && viewModel.password.isNotBlank()) {
                                 viewModel.login(object : CoroutinesErrorHandler {
                                     override fun onError(message: String) {
                                         Log.d("asthoriq login", "onError: $message")
                                     }
                                 })
+                            }
+                            else {
+                                Toast.makeText(context, "Gagal masuk!", Toast.LENGTH_SHORT).show()
                             }
                         } else if (viewModel.currTab == "Sign Up") {
                             if (viewModel.emailErr.isBlank() && viewModel.passErr.isBlank() && viewModel.passConfErr.isBlank() && viewModel.nameErr.isBlank() && viewModel.email.isNotBlank() && viewModel.password.isNotBlank() && viewModel.name.isNotBlank() && viewModel.passwordConf.isNotBlank()) {
@@ -215,6 +219,8 @@ fun AuthScreenBody(navController: NavController, viewModel: AuthViewModel) {
                                         Log.d("asthoriq register", "onError: $message")
                                     }
                                 })
+                            } else {
+                                Toast.makeText(context, "Gagal daftar!", Toast.LENGTH_SHORT).show()
                             }
                         }
                     },

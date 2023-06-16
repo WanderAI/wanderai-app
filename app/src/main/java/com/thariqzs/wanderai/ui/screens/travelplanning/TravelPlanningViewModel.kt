@@ -38,6 +38,7 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
     BaseViewModel() {
 
     val TAG = "tpvmthoriq"
+    val default = LocalDate.now().let { time -> time.plusDays(0)..time.plusDays(1) }
     var showDialogDestination by mutableStateOf(false)
     var showDialogDate by mutableStateOf(false)
     var showDialogBudget by mutableStateOf(false)
@@ -47,11 +48,11 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
     var focusRequester by mutableStateOf(FocusRequester())
     var chatEnabled by mutableStateOf(false)
     var numOfUser by mutableStateOf("")
+    var selectedCity by mutableStateOf(listOf<Int>())
+    var selectedBudget by mutableStateOf(listOf<Int>())
+    var selectedRange by mutableStateOf(default.toRange())
 
     var requestResult by mutableStateOf(History())
-
-    val default = LocalDate.now().let { time -> time.plusDays(0)..time.plusDays(1) }
-    var selectedRange by mutableStateOf(default.toRange())
 
     private var _planResponse = MutableLiveData<ApiResponse<DefaultResponse<History>>>()
     var planResponse = _planResponse
@@ -76,7 +77,6 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
         CityDetail("Semarang", 3),
         CityDetail("Surabaya", 4)
     )
-    var selectedCity by mutableStateOf(listOf<Int>())
 
     val budget: List<BudgetDetail> = listOf(
         BudgetDetail("Ingin yang paling murah ", 1),
@@ -84,7 +84,7 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
         BudgetDetail("Harga mahal bisa diurus ", 3),
         BudgetDetail("Budget bukanlah batasan :D", 4),
     )
-    var selectedBudget by mutableStateOf(listOf<Int>())
+
     val chatDelay: Long = 300
 
     private val chatFlowPreference: Flow<Chat> = flow {
@@ -313,7 +313,7 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
         if (selectedCity.contains(id)) {
             selectedCity = selectedCity - id
         } else {
-            selectedCity = selectedCity + id
+            selectedCity = arrayListOf(id)
         }
     }
 
@@ -321,7 +321,7 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
         if (selectedBudget.contains(id)) {
             selectedBudget = selectedBudget - id
         } else {
-            selectedBudget = selectedBudget + id
+            selectedBudget = arrayListOf(id)
         }
     }
 
@@ -334,6 +334,7 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
 
     fun requestWithPreference(coroutinesErrorHandler: CoroutinesErrorHandler) =
         baseRequest(_planResponse, coroutinesErrorHandler) {
+            Log.d(TAG, "request: tests")
             val date = convertDateRange(selectedRange.toString())
             val payload = PreferenceRequest(
                 descriptionQ,
@@ -343,7 +344,7 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
                 numOfUser.toInt(),
                 budget[selectedBudget[0]].id
             )
-//            val payload = RandomRequest()
+            Log.d(TAG, "payload: $payload")
             travelPlanningRepository.requestWithPreference(payload)
         }
 
@@ -356,6 +357,11 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
     }
 
     fun resetChat() {
+        numOfUser = ""
+        selectedCity = listOf<Int>()
+        selectedBudget = listOf<Int>()
+        selectedRange = default.toRange()
+        descriptionQ = ""
         chatList = listOf<Chat>()
         viewModelScope.launch {
             chatFlowDate.collect {

@@ -350,13 +350,14 @@ fun Header(name: String, navController: NavController, vm: TokenViewModel) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column() {
-            Text("WanderAI", style = a, color = BlueNormal)
-            Text("\uD83D\uDC4B Halo, $name!", style = h4)
+                Text("WanderAI", style = a, color = BlueNormal)
+            Text("\uD83D\uDC4B Halo, ${name.split(" ")[0]}!", style = h4)
         }
         Box(
             modifier = Modifier
                 .size(28.dp)
                 .background(color = BlueNormal, shape = RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(20.dp))
                 .clickable {
                     navController.navigate(Routes.Profile)
                 },

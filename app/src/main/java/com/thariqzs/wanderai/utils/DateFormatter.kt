@@ -42,3 +42,9 @@ fun convertDateRange(dateRange: String): RandomRequest {
 
     return RandomRequest(dayStart, dayEnd)
 }
+
+fun extractNumber(input: String): Int? {
+    val numberRegex = Regex("[0-9]+")
+    val matchResult = numberRegex.find(input)
+    return matchResult?.value?.toIntOrNull()
+}
