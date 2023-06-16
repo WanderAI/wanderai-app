@@ -1,5 +1,6 @@
 package com.thariqzs.wanderai.ui.screens.profile
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,6 +40,8 @@ import com.thariqzs.wanderai.ui.theme.b2
 import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.ui.theme.sh1
 import com.thariqzs.wanderai.utils.TokenViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ProfileScreen(navController: NavController, tvm: TokenViewModel) {
@@ -88,7 +91,7 @@ fun ProfileBody(navController: NavController, tvm: TokenViewModel) {
                     Text(tvm.email ?: "", style = b1)
                 }
             }
-            Text("Wander AI - v1.0.3", style = b2, color = Gray500, modifier =  Modifier.padding(start = 12.dp, top = 12.dp))
+            Text("Wander AI - v1.0.4", style = b2, color = Gray500, modifier =  Modifier.padding(start = 12.dp, top = 12.dp))
 //            ActionCard(icon = R.drawable.ic_settings, label = "Account Settings")
 //            ActionCard(icon = R.drawable.ic_lock, label = "Privacy Policy")
 //            ActionCard(icon = R.drawable.ic_sticky_note, label = "Terms and Condition")

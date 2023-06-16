@@ -99,6 +99,7 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
+        Log.d(TAG, "vm.token: ${vm.token.value}")
         hvm.getPlanHistory(object : CoroutinesErrorHandler {
             override fun onError(message: String) {
                 Log.d("hsthoriq getplanhistory", "onError: $message")
@@ -435,7 +436,7 @@ fun Body(navController: NavController, hvm: HomeViewModel) {
             icon = "\uD83D\uDE82",
             label = "Travel\n" +
                     "Recognition",
-            "Buat rencana perjalanan sesuai keinginanmu secara otomatis!",
+            "Ketahui lebih lanjut tentang objek wisata yang ingin atau sedang dikunjungi!",
             image = R.drawable.ic_phone,
             btnColor = OrangeNormal, handleNavigate = {
                 hvm.showDialog = true

@@ -68,4 +68,8 @@ class HomeViewModel @Inject constructor(private val homeRepository: HomeReposito
         baseRequest(_historyDetailResponse, coroutinesErrorHandler) {
             homeRepository.getHistoryDetail(id)
         }
+
+    fun resetDetail() {
+        historyDetail = HistoryDetail()
+    }
 }

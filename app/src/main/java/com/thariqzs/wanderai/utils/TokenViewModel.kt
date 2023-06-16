@@ -37,6 +37,10 @@ val TAG = "tvmthoriq"
                     Log.d("tvm error thoriq", "onError: $message")
                 }
             })
+        getToken()
+    }
+
+    fun getToken() {
         viewModelScope.launch(Dispatchers.IO) {
             tokenManager.getToken().collect {
                 withContext(Dispatchers.Main) {
@@ -58,6 +62,8 @@ val TAG = "tvmthoriq"
         viewModelScope.launch(Dispatchers.IO) {
             name = ""
             email = ""
+//            token.value = null
+
             tokenManager.deleteToken()
         }
     }

@@ -2,6 +2,7 @@ package com.thariqzs.wanderai.ui.screens.plandetail
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -63,13 +64,16 @@ fun PlanDetailScreen(navController: NavController, docId: String, hvm: HomeViewM
     val historyDetailRes by hvm._historyDetailResponse.observeAsState()
 
     LaunchedEffect(docId) {
-        if (docId != null) {
-            hvm.getHistoryDetail(object : CoroutinesErrorHandler {
-                override fun onError(message: String) {
-                    Log.d(TAG, "onError: $message")
-                }
-            }, docId)
-        }
+        hvm.getHistoryDetail(object : CoroutinesErrorHandler {
+            override fun onError(message: String) {
+                Log.d(TAG, "onError: $message")
+            }
+        }, docId)
+    }
+
+    BackHandler(true) {
+        hvm.resetDetail()
+        navController.popBackStack()
     }
 
     when (val response = historyDetailRes) {
@@ -109,13 +113,13 @@ fun PlanDetailBody(navController: NavController, hvm: HomeViewModel) {
     Column(
         Modifier.fillMaxSize()
     ) {
-        PlanDetailScreenHeader(navController, hvm.historyDetail.city ?: "")
+        PlanDetailScreenHeader(navController, hvm.historyDetail.city ?: "", hvm)
         PlanDetailScreenBody(hvm.historyDetail)
     }
 }
 
 @Composable
-fun PlanDetailScreenHeader(navController: NavController, title: String) {
+fun PlanDetailScreenHeader(navController: NavController, title: String, hvm: HomeViewModel) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -127,7 +131,10 @@ fun PlanDetailScreenHeader(navController: NavController, title: String) {
             tint = Color.White,
             modifier = Modifier
                 .size(52.dp)
-                .clickable { navController.popBackStack() }
+                .clickable {
+                    hvm.resetDetail()
+                    navController.popBackStack()
+                }
         )
         Text(text = title, style = h4, color = Color.White)
     }

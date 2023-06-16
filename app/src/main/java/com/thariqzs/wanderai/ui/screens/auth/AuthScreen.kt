@@ -1,7 +1,9 @@
 package com.thariqzs.wanderai.ui.screens.auth
 
+import android.app.Activity
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -33,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +62,8 @@ import com.thariqzs.wanderai.ui.theme.h4
 import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import com.thariqzs.wanderai.utils.TokenManager
 import com.thariqzs.wanderai.utils.TokenViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewModel) {
@@ -96,8 +101,28 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
     val store = TokenManager(context)
     val token = store.getToken().collectAsState(initial = null)
 
-    LaunchedEffect(token) {
+    val coroutineScope = rememberCoroutineScope()
+    val clickCount = remember { mutableStateOf(0) }
+
+    BackHandler(true) {
+        if (clickCount.value == 0) {
+            // First click, start a coroutine to wait for the second click
+            clickCount.value++
+            coroutineScope.launch {
+                delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                clickCount.value = 0
+            }
+            Toast.makeText(context, "Klik 2 kali untuk keluar", Toast.LENGTH_SHORT).show()
+        } else {
+            // Second click, close the app
+            val activity = context as? Activity
+            activity?.finish()
+        }
+    }
+
+    LaunchedEffect(Unit) {
         if (token.value != null) {
+            Log.d(TAG, "token.value: ${token.value}")
             navController.navigate(Routes.Home)
         }
     }
@@ -257,7 +282,10 @@ fun BottomActionButton(
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
         ) {
-            Text("Belum punya akun?", style = b2, modifier = Modifier)
+            Text(when (currTab) {
+                "Login" -> "Belum punya akun?"
+                "Sign Up" -> "Sudah punya akun?"
+                else -> "Belum punya akun?"}, style = b2, modifier = Modifier)
             Text(when (currTab) {
                 "Login" -> "Sign Up"
                 "Sign Up" -> "Login"
