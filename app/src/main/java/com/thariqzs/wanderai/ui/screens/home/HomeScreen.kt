@@ -1,10 +1,12 @@
 package com.thariqzs.wanderai.ui.screens.home
 
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -37,6 +39,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,18 +77,24 @@ import com.thariqzs.wanderai.utils.CoroutinesErrorHandler
 import com.thariqzs.wanderai.utils.TokenViewModel
 import com.thariqzs.wanderai.utils.createImageFile
 import com.thariqzs.wanderai.utils.formatDateRange
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewModel) {
-    val TAG = "hsthoriq"
     val context = LocalContext.current
+
+    val TAG = "hsthoriq"
 
     val placeRes by hvm._placeResponse.observeAsState()
     val historyRes by hvm._planHistoryResponse.observeAsState()
     val tokenRes by vm._tokenResponse.observeAsState()
+
+    val coroutineScope = rememberCoroutineScope()
+    val clickCount = remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         hvm.getPlanHistory(object : CoroutinesErrorHandler {
@@ -91,6 +102,27 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
                 Log.d("hsthoriq senimage", "onError: $message")
             }
         })
+    }
+
+
+    BackHandler {
+        if (hvm.showDialog) {
+            hvm.showDialog = false
+        } else {
+            if (clickCount.value == 0) {
+                // First click, start a coroutine to wait for the second click
+                clickCount.value++
+                coroutineScope.launch {
+                    delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                    clickCount.value = 0
+                }
+                Toast.makeText(context, "Klik 2 kali untuk keluar", Toast.LENGTH_SHORT).show()
+            } else {
+                // Second click, close the app
+                val activity = context as? Activity
+                activity?.finish()
+            }
+        }
     }
 
     when (val response = placeRes) {
@@ -350,7 +382,7 @@ fun Header(name: String, navController: NavController, vm: TokenViewModel) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column() {
-                Text("WanderAI", style = a, color = BlueNormal)
+            Text("WanderAI", style = a, color = BlueNormal)
             Text("\uD83D\uDC4B Halo, ${name.split(" ")[0]}!", style = h4)
         }
         Box(
@@ -398,7 +430,6 @@ fun Body(navController: NavController, hvm: HomeViewModel) {
             image = R.drawable.ic_phone,
             btnColor = OrangeNormal, handleNavigate = {
                 hvm.showDialog = true
-
             }
         )
     }
@@ -542,8 +573,16 @@ fun ListPlan(navController: NavController, list: List<History>) {
                 ) {
                     Column() {
                         Row(verticalAlignment = Alignment.Bottom) {
-                            Text(it.city  ?: "-", style = sh2, modifier = Modifier.padding(end = 4.dp))
-                            Text(("#" + it.doc_id?.substring(0, 5)) ?: "-", style = a, color = Gray300)
+                            Text(
+                                it.city ?: "-",
+                                style = sh2,
+                                modifier = Modifier.padding(end = 4.dp)
+                            )
+                            Text(
+                                ("#" + it.doc_id?.substring(0, 5)) ?: "-",
+                                style = a,
+                                color = Gray300
+                            )
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         Row() {

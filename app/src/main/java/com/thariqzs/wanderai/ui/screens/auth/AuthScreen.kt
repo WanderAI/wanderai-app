@@ -85,6 +85,7 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
 
         is ApiResponse.Loading -> {
             Log.d(TAG, "loading... ")
+            Toast.makeText(context, "Please wait..", Toast.LENGTH_SHORT).show()
             // Handle loading state if needed
         }
 
