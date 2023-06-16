@@ -48,8 +48,6 @@ val TAG = "tvmthoriq"
 
     fun saveToken(data: User) {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d(TAG, "data.name: ${data.name}")
-            Log.d(TAG, "data.email: ${data.email}")
             name = data.name.toString()
             email = data.email.toString()
             data.token?.let { tokenManager.saveToken(it) }

@@ -71,7 +71,6 @@ fun AuthScreen(navController: NavController, vm: AuthViewModel, tvm: TokenViewMo
         is ApiResponse.Success -> {
             val data = response.data
             if (tvm.token.value.isNullOrBlank()) {
-                Log.d(TAG, "data.data: ${data.data} ")
                 navController.navigate(Routes.Home)
                 data.data?.let { tvm.saveToken(it) }
             }

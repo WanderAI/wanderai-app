@@ -60,45 +60,49 @@ class AuthViewModel @Inject constructor(private val authRepository: AuthReposito
     }
 
     fun validateInputRegister() {
-        emailErr = if (email.isNotEmpty() && !validateEmail(email)) {
+        emailErr = if (email.isEmpty()) {
+            "Harap lengkapi email"
+        } else if (!validateEmail(email)) {
             "Email tidak valid"
-//        } else if (isEmailRegistered(email)) {
-//            "Email sudah terdaftar"
         } else {
             ""
         }
 
-        passErr = if (password.isNotEmpty()) {
-            if (!validatePassword(password)) {
-                "Password harus mengandung angka dan karakter"
-            } else if (password.length < 8) {
-                "Password harus memiliki setidaknya 8 karakter"
-            } else {
-                ""
-            }
+        passErr = if (password.isEmpty()) {
+            "Harap lengkapi password"
+        } else if (!validatePassword(password)) {
+            "Password harus mengandung angka dan karakter"
+        } else if (password.length < 8) {
+            "Password harus memiliki setidaknya 8 karakter"
         } else {
             ""
         }
 
-        passConfErr = if (passwordConf.isNotEmpty() && password != passwordConf) {
+        passConfErr = if (passwordConf.isEmpty()) {
+            "Harap lengkapi konfirmasi password"
+        } else if (password != passwordConf) {
             "Konfirmasi password tidak cocok"
         } else {
             ""
         }
 
-        nameErr = if (name.isNotEmpty() && name.contains(Regex("\\p{So}"))) {
+        nameErr = if (name.isEmpty()) {
+            "Harap lengkapi nama"
+        } else if (name.contains(Regex("\\p{So}"))) {
             "Nama tidak boleh mengandung emoji"
         } else {
             ""
         }
     }
 
+
     private fun validateEmail(email: String): Boolean {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
     private fun validatePassword(password: String): Boolean {
-        return password.length >= 8
+        val regex = Regex(".*\\d.*")
+        return password.length >= 8 && regex.matches(password)
     }
 
     companion object {

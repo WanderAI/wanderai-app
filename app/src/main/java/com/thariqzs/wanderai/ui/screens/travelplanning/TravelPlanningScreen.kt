@@ -275,7 +275,7 @@ fun ScreenHeader(navController: NavController, resetChat: () -> Unit) {
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     modifier = Modifier
-                        .width(88.dp),
+                        .width(102.dp),
                     shape = RoundedCornerShape(16.dp),
 //                    border = BorderStroke(2.dp, BlueNormal),
                     colors = ButtonDefaults.buttonColors(containerColor = BlueNormal),
@@ -649,7 +649,6 @@ fun DatePickerDialog(
                 modifier = Modifier
                     .size(16.dp)
                     .clickable {
-                        Log.d("closegaksavethoriq", "DatePickerDialog: ")
                         setShowDialog(false)
                     }
             )

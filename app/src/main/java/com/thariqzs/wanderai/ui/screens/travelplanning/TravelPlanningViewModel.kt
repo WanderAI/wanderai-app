@@ -337,6 +337,12 @@ class TravelPlanningViewModel @Inject constructor(private val travelPlanningRepo
         baseRequest(_planResponse, coroutinesErrorHandler) {
             val numOfUser = numOfUser.toInt()
             val date = convertDateRange(selectedRange.toString())
+            Log.d(TAG, "descriptionQ: $descriptionQ")
+            Log.d(TAG, "selectedCity[0]: ${selectedCity[0]}")
+            Log.d(TAG, "date.day_start: ${date.day_start}")
+            Log.d(TAG, "date.day_end: ${date.day_end}")
+            Log.d(TAG, "numOfUser: $numOfUser")
+            Log.d(TAG, "selectedBudget[0]-1: ${selectedBudget[0]-1}")
             val payload = PreferenceRequest(
                 descriptionQ,
                 cityList[selectedCity[0]].cityName,

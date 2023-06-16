@@ -99,10 +99,9 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        Log.d(TAG, "HomeScreen: refetch")
         hvm.getPlanHistory(object : CoroutinesErrorHandler {
             override fun onError(message: String) {
-                Log.d("hsthoriq senimage", "onError: $message")
+                Log.d("hsthoriq getplanhistory", "onError: $message")
             }
         })
     }
@@ -143,7 +142,7 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
         is ApiResponse.Failure -> {
             val errorMessage = response.errorMessage
             Toast.makeText(context, "${errorMessage}", Toast.LENGTH_SHORT).show()
-            Log.d(TAG, "failure: ${errorMessage}")
+            Log.d(TAG, "failure placeres: ${errorMessage}")
         }
 
         is ApiResponse.Loading -> {
@@ -167,7 +166,7 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
         is ApiResponse.Failure -> {
             val errorMessage = response.errorMessage
             Toast.makeText(context, "${errorMessage}", Toast.LENGTH_SHORT).show()
-            Log.d(TAG, "failure: ${errorMessage}")
+            Log.d(TAG, "failure historyRes: ${errorMessage}")
         }
 
         else -> {
@@ -184,13 +183,12 @@ fun HomeScreen(navController: NavController, vm: TokenViewModel, hvm: HomeViewMo
                 vm.name = data.name.toString()
                 vm.email = data.email.toString()
             }
-//            Log.d(TAG, "data: $data")
         }
 
         is ApiResponse.Failure -> {
             val errorMessage = response.errorMessage
-            Toast.makeText(context, "${errorMessage}", Toast.LENGTH_SHORT).show()
-            Log.d(TAG, "failure: ${errorMessage}")
+//            Toast.makeText(context, "${errorMessage}", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "failure tokenRes: $response")
         }
 
         else -> {

@@ -89,7 +89,6 @@ fun Navigation() {
         }
         
         composable(Routes.ResetPassword) {
-            val authViewModel = hiltViewModel<AuthViewModel>()
             ResetPasswordScreen(navController = navController, authViewModel)
         }
 
